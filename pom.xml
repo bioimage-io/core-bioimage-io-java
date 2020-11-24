@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>29.2.1</version>
+		<relativePath />
+	</parent>
+
+	<groupId>io.bioimage</groupId>
+	<artifactId>java-bioimage-io</artifactId>
+	<version>0.3.0-SNAPSHOT</version>
+
+	<name>bioimage.io Java specification</name>
+	<description>This is the Java implementation of the bioimage.io model specification.</description>
+	<url>https://bioimage.io/</url>
+	<inceptionYear>2020</inceptionYear>
+	<organization>
+		<name>BioImage.io</name>
+		<url>https://www.bioimage.io/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Simplified BSD License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+
+	<developers>
+		<!-- See https://imagej.net/Team -->
+		<developer>
+			<id>frauzufall</id>
+			<name>Deborah Schmidt</name>
+			<url>https://github.com/frauzufall</url>
+			<roles>
+				<role>founder</role>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>None</name>
+		</contributor>
+	</contributors>
+
+	<mailingLists>
+		<mailingList>
+			<name>ImageJ Forum</name>
+			<archive>http://forum.imagej.net/</archive>
+		</mailingList>
+	</mailingLists>
+
+	<scm>
+		<connection>scm:git:git://github.com/bioimage-io/java-bioimage-io</connection>
+		<developerConnection>scm:git:git@github.com:bioimage-io/java-bioimage-io</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/bioimage-io/java-bioimage-io</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/bioimage-io/java-bioimage-io/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>Travis CI</system>
+		<url>https://travis-ci.com/bioimage-io/java-bioimage-io</url>
+	</ciManagement>
+
+	<properties>
+		<package-name>bioimage.io.specification</package-name>
+		<!-- LICENSE -->
+		<license.licenseName>bsd_2</license.licenseName>
+		<license.copyrightOwners>Center for Systems Biology Dresden</license.copyrightOwners>
+		<releaseProfiles>deploy-to-scijava</releaseProfiles>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>
