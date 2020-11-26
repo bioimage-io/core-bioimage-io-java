@@ -36,6 +36,7 @@ import io.bioimage.specification.DefaultOutputNodeSpecification;
 import io.bioimage.specification.InputNodeSpecification;
 import io.bioimage.specification.ModelSpecification;
 import io.bioimage.specification.OutputNodeSpecification;
+import io.bioimage.specification.io.SpecificationWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -95,10 +96,10 @@ public class E01_WriteSpecification {
 		File destination = folder.getRoot();
 
 		// save model specification
-		specification.write(destination);
+		SpecificationWriter.write(specification, destination);
 
 		// print file content to console
-		File modelSpecFile = new File(destination, specification.getModelFileName());
+		File modelSpecFile = new File(destination, SpecificationWriter.getModelFileName());
 		System.out.println(FileUtils.readFileToString(modelSpecFile, StandardCharsets.UTF_8));
 
 	}

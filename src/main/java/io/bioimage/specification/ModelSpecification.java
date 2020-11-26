@@ -49,24 +49,6 @@ public interface ModelSpecification {
 
 	List<String> getSampleOutputs();
 
-	boolean readFromZIP(File zippedModel);
-
-	boolean readFromDirectory(File directory) throws IOException;
-
-	boolean read(String modelSpecificationFile) throws IOException;
-
-	boolean read(Path specPath) throws IOException;
-
-	boolean read(File modelSpecificationFile) throws IOException;
-
-	boolean read(InputStream in) throws IOException;
-
-	void write(String targetDirectory) throws IOException;
-
-	void write(File targetDirectory) throws IOException;
-
-	void write(Path specPath) throws IOException;
-
 	List<InputNodeSpecification> getInputs();
 
 	List<OutputNodeSpecification> getOutputs();
@@ -95,11 +77,9 @@ public interface ModelSpecification {
 
 	String getSource();
 
-	String getModelFileName();
-
 	String getGitRepo();
 
-	Map<String, Object> getAttachments();
+	Map<String, String> getAttachments();
 
 	String getTimestamp();
 
@@ -110,4 +90,10 @@ public interface ModelSpecification {
 
 	@Deprecated
 	String getTrainingSource();
+
+	Map<String, Object> getConfig();
+
+	void setSampleInputs(List<String> inNames);
+
+	void setSampleOutputs(List<String> outNames);
 }

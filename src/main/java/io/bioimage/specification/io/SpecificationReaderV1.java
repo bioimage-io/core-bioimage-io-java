@@ -6,7 +6,6 @@ import io.bioimage.specification.DefaultInputNodeSpecification;
 import io.bioimage.specification.DefaultModelSpecification;
 import io.bioimage.specification.DefaultOutputNodeSpecification;
 import io.bioimage.specification.InputNodeSpecification;
-import io.bioimage.specification.ModelSpecification;
 import io.bioimage.specification.NodeSpecification;
 import io.bioimage.specification.OutputNodeSpecification;
 import io.bioimage.specification.WeightsSpecification;
@@ -22,7 +21,7 @@ import java.util.Objects;
 
 import static io.bioimage.specification.util.SpecificationUtil.asMap;
 
-public class SpecificationReaderV1 {
+class SpecificationReaderV1 {
 
 	private final static String idName = "name";
 	private final static String idDescription = "description";
@@ -67,7 +66,7 @@ public class SpecificationReaderV1 {
 	private static final String idTransformationMean = "mean";
 	private static final String idTransformationStd = "stdDev";
 
-	public static DefaultModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) {
+	static DefaultModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) {
 		readMeta(specification, obj);
 		readInputsOutputs(specification, obj);
 		readTraining(specification, obj);

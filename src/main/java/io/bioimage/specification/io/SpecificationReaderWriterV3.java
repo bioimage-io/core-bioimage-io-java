@@ -12,8 +12,11 @@ import io.bioimage.specification.OutputNodeSpecification;
 import io.bioimage.specification.TransformationSpecification;
 import io.bioimage.specification.WeightsSpecification;
 import io.bioimage.specification.transformation.BinarizeTransformation;
+import io.bioimage.specification.transformation.ClipTransformation;
 import io.bioimage.specification.transformation.ImageTransformation;
+import io.bioimage.specification.transformation.PercentileTransformation;
 import io.bioimage.specification.transformation.ScaleLinearTransformation;
+import io.bioimage.specification.transformation.ScaleMinMaxTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
 
@@ -29,7 +32,7 @@ import java.util.Objects;
 
 import static io.bioimage.specification.util.SpecificationUtil.asMap;
 
-public class SpecificationReaderWriterV3 {
+class SpecificationReaderWriterV3 {
 
 	private final static String idName = "name";
 	private final static String idDescription = "description";
@@ -91,13 +94,29 @@ public class SpecificationReaderWriterV3 {
 	private final static String idTransformationZeroMeanStd = "std";
 	private final static String idWeightsTensorFlowSavedModelBundle = "tensorflow_saved_model_bundle";
 
+	private final static String idTransformationScaleMinMax = "scale_min_max";
+	private final static String idTransformationScaleMinMaxReferenceInput = "reference_input";
+	private final static String idTransformationScaleMinMaxMinPercentile = "min_percentile";
+	private final static String idTransformationScaleMinMaxMaxPercentile = "max_percentile";
+
+	private final static String idTransformationPercentile = "percentile";
+	private final static String idTransformationPercentileMinPercentile = "min_percentile";
+	private final static String idTransformationPercentileMaxPercentile = "max_percentile";
+
 	private final static String idTransformationBinarize = "binarize";
 	private final static String idTransformationBinarizeThreshold = "threshold";
 
-	public static DefaultModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) throws IOException {
+	private final static String idTransformationClip = "clip";
+	private final static String idTransformationClipMin = "min";
+	private final static String idTransformationClipMax = "max";
+
+	private final static String idConfig = "config";
+
+	static DefaultModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) throws IOException {
 		readMeta(specification, obj);
 		readInputsOutputs(specification, obj);
 		readWeights(specification, obj);
+		readConfig(specification, obj);
 		return specification;
 	}
 
@@ -122,7 +141,7 @@ public class SpecificationReaderWriterV3 {
 		Object attachments = obj.get(idAttachments);
 		if (attachments != null) {
 			if (Map.class.isAssignableFrom(attachments.getClass())) {
-				specification.setAttachments(asMap(attachments));
+				specification.setAttachments((Map<String, String>) attachments);
 			}
 		}
 		specification.setDocumentation((String) obj.get(idDocumentation));
@@ -137,6 +156,10 @@ public class SpecificationReaderWriterV3 {
 		specification.setTestOutputs((List<String>) obj.get(idTestOutputs));
 		specification.setSampleInputs((List<String>) obj.get(idSampleInputs));
 		specification.setSampleOutputs((List<String>) obj.get(idSampleOutputs));
+	}
+
+	private static void readConfig(DefaultModelSpecification specification, Map<String, Object> obj) {
+		specification.setConfig(asMap(obj.get(idConfig)));
 	}
 
 	private static Object parseSource(Map<String, Object> obj) {
@@ -181,6 +204,7 @@ public class SpecificationReaderWriterV3 {
 		writeMeta(specification, data);
 		writeInputsOutputs(specification, data);
 		writeWeights(specification, data);
+		writeConfig(specification, data);
 		return data;
 	}
 
@@ -199,6 +223,11 @@ public class SpecificationReaderWriterV3 {
 			}
 		}
 		data.put(idWeights, weights);
+	}
+
+	private static void writeConfig(ModelSpecification specification, Map<String, Object> data) {
+		Map<String, Object> config = specification.getConfig();
+		if(config != null) data.put(idConfig, config);
 	}
 
 	private static String getWeightsName(WeightsSpecification weight) {
@@ -310,8 +339,27 @@ public class SpecificationReaderWriterV3 {
 				zeroMean.setMean(toNumber(kwargs.get(idTransformationZeroMeanMean)));
 				zeroMean.setStd(toNumber(kwargs.get(idTransformationZeroMeanStd)));
 				return zeroMean;
+			case idTransformationScaleMinMax:
+				ScaleMinMaxTransformation scaleMinMax = new ScaleMinMaxTransformation();
+				scaleMinMax.setMode(toMode(kwargs.get(idTransformationMode)));
+				scaleMinMax.setReferenceInput((String) kwargs.get(idTransformationScaleMinMaxReferenceInput));
+				scaleMinMax.setMinPercentile(toNumber(kwargs.get(idTransformationScaleMinMaxMinPercentile)));
+				scaleMinMax.setMaxPercentile(toNumber(kwargs.get(idTransformationScaleMinMaxMaxPercentile)));
+				return scaleMinMax;
+			case idTransformationPercentile:
+				PercentileTransformation percentile = new PercentileTransformation();
+				percentile.setMode(toMode(kwargs.get(idTransformationMode)));
+				percentile.setMinPercentile(toNumber(kwargs.get(idTransformationPercentileMinPercentile)));
+				percentile.setMaxPercentile(toNumber(kwargs.get(idTransformationPercentileMaxPercentile)));
+				return percentile;
+			case idTransformationClip:
+				ClipTransformation clip = new ClipTransformation();
+				clip.setMode(toMode(kwargs.get(idTransformationMode)));
+				clip.setMin(toNumber(kwargs.get(idTransformationClipMin)));
+				clip.setMax(toNumber(kwargs.get(idTransformationClipMax)));
+				return clip;
 		}
-		return null;
+		throw new IOException("Could not process transformation " + transformation);
 	}
 
 	private static ImageTransformation.Mode toMode(Object obj) {
@@ -330,6 +378,7 @@ public class SpecificationReaderWriterV3 {
 	}
 
 	private static Number toNumber(Object obj) {
+		if(obj == null) return null;
 		if(Number.class.isAssignableFrom(obj.getClass())) {
 			return (Number) obj;
 		}
@@ -421,6 +470,25 @@ public class SpecificationReaderWriterV3 {
 			BinarizeTransformation binarize = (BinarizeTransformation) transformation;
 			kwargs.put(idTransformationMode, writeMode(binarize.getMode()));
 			kwargs.put(idTransformationBinarizeThreshold, Collections.singletonList(binarize.getThreshold()));
+		} else if(transformation instanceof ScaleMinMaxTransformation) {
+			res.put(idTransformationName, idTransformationScaleMinMax);
+			ScaleMinMaxTransformation scaleMinMax = (ScaleMinMaxTransformation) transformation;
+			kwargs.put(idTransformationMode, writeMode(scaleMinMax.getMode()));
+			kwargs.put(idTransformationScaleMinMaxMinPercentile, scaleMinMax.getMinPercentile());
+			kwargs.put(idTransformationScaleMinMaxMaxPercentile, scaleMinMax.getMaxPercentile());
+			kwargs.put(idTransformationScaleMinMaxReferenceInput, scaleMinMax.getReferenceInput());
+		} else if(transformation instanceof PercentileTransformation) {
+			res.put(idTransformationName, idTransformationPercentile);
+			PercentileTransformation percentile = (PercentileTransformation) transformation;
+			kwargs.put(idTransformationMode, writeMode(percentile.getMode()));
+			kwargs.put(idTransformationPercentileMinPercentile, percentile.getMinPercentile());
+			kwargs.put(idTransformationPercentileMaxPercentile, percentile.getMaxPercentile());
+		} else if(transformation instanceof ClipTransformation) {
+			res.put(idTransformationName, idTransformationClip);
+			ClipTransformation clip = (ClipTransformation) transformation;
+			kwargs.put(idTransformationMode, writeMode(clip.getMode()));
+			kwargs.put(idTransformationClipMin, clip.getMin());
+			kwargs.put(idTransformationClipMax, clip.getMax());
 		}
 		res.put(idTransformationKwargs, kwargs);
 		return res;

@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import static io.bioimage.specification.util.SpecificationUtil.asMap;
 
-public class SpecificationReaderV2 {
+class SpecificationReaderV2 {
 
 	private final static String idName = "name";
 	private final static String idDescription = "description";
@@ -67,7 +67,7 @@ public class SpecificationReaderV2 {
 	private static final String idTransformationMean = "mean";
 	private static final String idTransformationStd = "stdDev";
 
-	public static ModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) {
+	static ModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) {
 		readMeta(specification, obj);
 		readInputsOutputs(specification, obj);
 		readTraining(specification, obj);

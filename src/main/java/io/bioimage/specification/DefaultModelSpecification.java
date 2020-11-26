@@ -28,28 +28,10 @@
  */
 package io.bioimage.specification;
 
-import io.bioimage.specification.io.SpecificationReaderV1;
-import io.bioimage.specification.io.SpecificationReaderV2;
-import io.bioimage.specification.io.SpecificationReaderWriterV3;
-import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
-import org.yaml.snakeyaml.Yaml;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipFile;
 
 /**
  * This is the ImageJ version of the model zoo configuration specification
@@ -57,9 +39,7 @@ import java.util.zip.ZipFile;
  */
 public class DefaultModelSpecification implements ModelSpecification {
 
-	final static String dependenciesFileName = "dependencies.yaml";
 	final static String modelZooSpecificationVersion = "0.3.0";
-	private String modelFileName = "model.yaml";
 	private String language = "java";
 	private String framework;
 	private String formatVersion = modelZooSpecificationVersion;
@@ -80,102 +60,10 @@ public class DefaultModelSpecification implements ModelSpecification {
 	private List<OutputNodeSpecification> outputNodes = new ArrayList<>();
 	private List<WeightsSpecification> weights = new ArrayList<>();
 	private String gitRepo;
-	private Map<String, Object> attachments;
+	private Map<String, String> attachments;
 	private String timestamp;
 	private Map<String, Object> trainingKwargs;
-
-	@Override
-	public boolean readFromZIP(File zippedModel) {
-		try {
-			return read(extractFile(zippedModel, modelFileName));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	@Override
-	public boolean readFromDirectory(File directory) throws IOException {
-		return read(new File(directory, modelFileName));
-	}
-
-	@Override
-	public boolean read(String modelSpecificationFile) throws IOException {
-		return read(new File(modelSpecificationFile));
-	}
-
-	@Override
-	public boolean read(File modelSpecificationFile) throws IOException {
-		try (InputStream stream = new FileInputStream(modelSpecificationFile)) {
-			return read(stream);
-		}
-	}
-
-	@Override
-	public boolean read(Path modelSpecificationPath) throws IOException {
-		try (InputStream stream = Files.newInputStream(modelSpecificationPath)) {
-			return read(stream);
-		}
-	}
-
-	@Override
-	public boolean read(InputStream stream) throws IOException {
-		Yaml yaml = new Yaml();
-		Map<String, Object> obj = yaml.load(stream);
-//		System.out.println(obj);
-		if (obj == null) return false;
-		return read(obj);
-	}
-
-	protected boolean read(Map<String, Object> obj) throws IOException {
-		if(SpecificationReaderWriterV3.canRead(obj)) {
-			SpecificationReaderWriterV3.read(this, obj);
-			return true;
-		}
-		if(SpecificationReaderV2.canRead(obj)) {
-			SpecificationReaderV2.read(this, obj);
-			return true;
-		}
-		if(SpecificationReaderV1.canRead(obj)) {
-			SpecificationReaderV1.read(this, obj);
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public void write(String targetDirectory) throws IOException {
-		write(new File(targetDirectory));
-	}
-
-	@Override
-	public void write(File targetDirectory) throws IOException {
-		writeDependenciesFile(targetDirectory);
-		// when (re)writing the specification, use the most recent specification version
-		setFormatVersion(modelZooSpecificationVersion);
-		Map<String, Object> data = write();
-		Yaml yaml = new Yaml();
-		try (FileWriter writer = new FileWriter(new File(targetDirectory, modelFileName))) {
-			yaml.dump(data, writer);
-		}
-	}
-
-	public Map<String, Object> write() {
-		return SpecificationReaderWriterV3.write(this);
-	}
-
-	@Override
-	public void write(Path modelSpecificationPath) throws IOException {
-		setFormatVersion(modelZooSpecificationVersion);
-		Map<String, Object> data = write();
-		Yaml yaml = new Yaml();
-		try {
-			Files.delete(modelSpecificationPath);
-		} catch(IOException ignored) {}
-		try (Writer writer = Files.newBufferedWriter(modelSpecificationPath)) {
-			yaml.dump(data, writer);
-		}
-	}
+	private Map<String, Object> config;
 
 	public void setDescription(String description) {
 		this.description = description;
@@ -298,17 +186,12 @@ public class DefaultModelSpecification implements ModelSpecification {
 	}
 
 	@Override
-	public String getModelFileName() {
-		return modelFileName;
-	}
-
-	@Override
 	public String getGitRepo() {
 		return gitRepo;
 	}
 
 	@Override
-	public Map<String, Object> getAttachments() {
+	public Map<String, String> getAttachments() {
 		return unmodifiable(attachments);
 	}
 
@@ -335,6 +218,7 @@ public class DefaultModelSpecification implements ModelSpecification {
 		return unmodifiable(sampleInputs);
 	}
 
+	@Override
 	public void setSampleInputs(List<String> sampleInputs) {
 		this.sampleInputs = sampleInputs;
 	}
@@ -344,6 +228,7 @@ public class DefaultModelSpecification implements ModelSpecification {
 		return unmodifiable(sampleOutputs);
 	}
 
+	@Override
 	public void setSampleOutputs(List<String> sampleOutputs) {
 		this.sampleOutputs = sampleOutputs;
 	}
@@ -374,10 +259,6 @@ public class DefaultModelSpecification implements ModelSpecification {
 		this.language = language;
 	}
 
-	public void setModelFileName(String modelFileName) {
-		this.modelFileName = modelFileName;
-	}
-
 	public void read(ModelSpecification spec) {
 		setName(spec.getName());
 		setDocumentation(spec.getDocumentation());
@@ -395,7 +276,6 @@ public class DefaultModelSpecification implements ModelSpecification {
 		setTrainingKwargs(spec.getTrainingKwargs());
 		setTrainingSource(spec.getTrainingSource());
 		setGitRepo(spec.getGitRepo());
-		setModelFileName(spec.getModelFileName());
 		setInputs(spec.getInputs());
 		setOutputs(spec.getOutputs());
 		setAttachments(spec.getAttachments());
@@ -406,7 +286,7 @@ public class DefaultModelSpecification implements ModelSpecification {
 		this.weights = weights;
 	}
 
-	public void setAttachments(Map<String, Object> attachments) {
+	public void setAttachments(Map<String, String> attachments) {
 		this.attachments = attachments;
 	}
 
@@ -416,29 +296,6 @@ public class DefaultModelSpecification implements ModelSpecification {
 
 	public void setInputs(List<InputNodeSpecification> inputs) {
 		this.inputNodes = inputs;
-	}
-
-	private static InputStream extractFile(File zipFile, String fileName) throws IOException {
-		ZipFile zf = new ZipFile(zipFile);
-		return zf.getInputStream(zf.getEntry(fileName));
-	}
-
-	private static void writeDependenciesFile(File targetDirectory) {
-		Map<String, Object> data = new LinkedHashMap<>();
-		List<String> dependencies = new ArrayList<>();
-		ClassLoader cl = ClassLoader.getSystemClassLoader();
-		for (URL url : ((URLClassLoader) cl).getURLs()) {
-			dependencies.add(url.getPath());
-		}
-		data.put("classPath", dependencies);
-		Yaml yaml = new Yaml();
-		FileWriter writer = null;
-		try {
-			writer = new FileWriter(new File(targetDirectory, dependenciesFileName));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		yaml.dump(data, writer);
 	}
 
 	private static <T> List<T> unmodifiable(List<T> list) {
@@ -455,6 +312,11 @@ public class DefaultModelSpecification implements ModelSpecification {
 		return getSource();
 	}
 
+	@Override
+	public Map<String, Object> getConfig() {
+		return config;
+	}
+
 	@Deprecated
 	public void setTrainingSource(String trainingSource) {
 		setSource(trainingSource);
@@ -467,5 +329,9 @@ public class DefaultModelSpecification implements ModelSpecification {
 
 	public void addWeights(WeightsSpecification weights) {
 		this.weights.add(weights);
+	}
+
+	public void setConfig(Map<String, Object> config) {
+		this.config = config;
 	}
 }

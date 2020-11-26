@@ -1,6 +1,8 @@
 package io.bioimage.specification.howto;
 
 import io.bioimage.specification.CustomSpecification;
+import io.bioimage.specification.io.SpecificationReader;
+import io.bioimage.specification.io.SpecificationWriter;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -19,11 +21,11 @@ public class E03_CustomSpecification {
 		specification.setSecret("birds are dinosaurs");
 
 		Path file = Files.createTempFile("myspec", ".yaml");
-		specification.write(file);
+		SpecificationWriter.write(specification, file);
 
 		// read the specification again from disk
 		specification = new CustomSpecification();
-		specification.read(file);
+		SpecificationReader.read(file, specification);
 
 		// access custom variable
 		System.out.println(specification.getSecret());
