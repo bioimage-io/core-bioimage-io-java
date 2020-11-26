@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
