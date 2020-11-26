@@ -11,7 +11,7 @@
 
 	<groupId>io.bioimage</groupId>
 	<artifactId>java-bioimage-io</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.0</version>
 
 	<name>bioimage.io Java specification</name>
 	<description>Java implementation of the bioimage.io model specification.</description>
@@ -61,7 +61,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/bioimage-io/java-bioimage-io</connection>
 		<developerConnection>scm:git:git@github.com:bioimage-io/java-bioimage-io</developerConnection>
-		<tag>HEAD</tag>
+		<tag>java-bioimage-io-0.3.0</tag>
 		<url>https://github.com/bioimage-io/java-bioimage-io</url>
 	</scm>
 	<issueManagement>
