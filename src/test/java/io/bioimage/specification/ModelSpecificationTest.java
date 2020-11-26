@@ -28,8 +28,13 @@
  */
 package io.bioimage.specification;
 
+import io.bioimage.specification.io.SpecificationReader;
+import io.bioimage.specification.io.SpecificationWriter;
+import io.bioimage.specification.transformation.BinarizeTransformation;
+import io.bioimage.specification.transformation.ClipTransformation;
 import io.bioimage.specification.transformation.ImageTransformation;
 import io.bioimage.specification.transformation.ScaleLinearTransformation;
+import io.bioimage.specification.transformation.ScaleMinMaxTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
 import org.apache.commons.io.FileUtils;
@@ -82,11 +87,16 @@ public class ModelSpecificationTest {
 	private final static List<Double> shapeScale = Arrays.asList(2., 2., 2., 1.);
 	private final static String testInput = "input.png";
 	private final static String testOutput = "output.png";
-	private final static Map<String, Object> attachments = Collections.singletonMap("manifest", "./manifest/README.txt");
+	private final static Map<String, String> attachments = Collections.singletonMap("manifest", "./manifest/README.txt");
 	private final static String weightsSha256 = "1234567";
 	private final static String weightsSource = "./weights.zip";
 	private final static String timestamp = new Timestamp(System.currentTimeMillis()).toString();
 	private final static ImageTransformation.Mode mode = ImageTransformation.Mode.FIXED;
+	private final static Number threshold = 0.5;
+	private final static Number min = 3;
+	private final static Number max = 4;
+	private Number minPercentile = 0.3;
+	private Number maxPercentile = 99.8;
 
 	@Test
 	public void testEmptySpec() throws IOException {
@@ -98,13 +108,13 @@ public class ModelSpecificationTest {
 		// write spec
 
 		File dir = folder.getRoot();
-		specification.write(dir);
+		SpecificationWriter.write(specification, dir);
 
 		// check if files exist and are not empty
 
-		File modelFile = new File(dir.getAbsolutePath(), specification.getModelFileName());
+		File modelFile = new File(dir.getAbsolutePath(), SpecificationWriter.getModelFileName());
 		assertTrue(modelFile.exists());
-		File dependencyFile = new File(dir.getAbsolutePath(), DefaultModelSpecification.dependenciesFileName);
+		File dependencyFile = new File(dir.getAbsolutePath(), SpecificationWriter.dependenciesFileName);
 		assertTrue(dependencyFile.exists());
 		String content = FileUtils.readFileToString(modelFile, StandardCharsets.UTF_8);
 		assertFalse(content.isEmpty());
@@ -112,8 +122,8 @@ public class ModelSpecificationTest {
 		assertFalse(content.isEmpty());
 
 		// read spec
-		ModelSpecification newSpec = new DefaultModelSpecification();
-		assertTrue(newSpec.readFromDirectory(dir));
+		DefaultModelSpecification newSpec = new DefaultModelSpecification();
+		assertTrue(SpecificationReader.readFromDirectory(dir, newSpec));
 
 		// check default spec values
 		assertEquals(DefaultModelSpecification.modelZooSpecificationVersion, newSpec.getFormatVersion());
@@ -132,15 +142,15 @@ public class ModelSpecificationTest {
 		checkExampleValues(specification);
 
 		// write spec
-		specification.write(dir);
-		File modelFile = new File(dir.getAbsolutePath(), specification.getModelFileName());
+		SpecificationWriter.write(specification, dir);
+		File modelFile = new File(dir.getAbsolutePath(), SpecificationWriter.getModelFileName());
 		assertTrue(modelFile.exists());
 		String content = FileUtils.readFileToString(modelFile, StandardCharsets.UTF_8);
 		System.out.println(content);
 
 		// read spec
-		ModelSpecification newSpec = new DefaultModelSpecification();
-		assertTrue(newSpec.readFromDirectory(dir));
+		DefaultModelSpecification newSpec = new DefaultModelSpecification();
+		assertTrue(SpecificationReader.readFromDirectory(dir, newSpec));
 
 		// check values
 		checkExampleValues(newSpec);
@@ -165,6 +175,12 @@ public class ModelSpecificationTest {
 		specification.setSampleInputs(Collections.singletonList(testInput));
 		specification.setSampleOutputs(Collections.singletonList(testOutput));
 		specification.setAttachments(attachments);
+		// transformations
+		ScaleLinearTransformation scaleLinear = getScaleLinearTransformation();
+		BinarizeTransformation binarize = getBinarizeTransformation();
+		ClipTransformation clip = getClipTransformation();
+		ZeroMeanUnitVarianceTransformation zeroMean = getZeroMeanUnitVarianceTransformation();
+		ScaleMinMaxTransformation scaleMinMax = getScaleMinMaxTransformation();
 		// input node
 		InputNodeSpecification inputNode = new DefaultInputNodeSpecification();
 		inputNode.setShapeMin(shapeMin);
@@ -174,11 +190,7 @@ public class ModelSpecificationTest {
 		inputNode.setDataType(dataType);
 		inputNode.setName(inputName);
 		inputNode.setHalo(halo);
-		ZeroMeanUnitVarianceTransformation preprocessing = new ZeroMeanUnitVarianceTransformation();
-		preprocessing.setMean(mean);
-		preprocessing.setStd(std);
-		preprocessing.setMode(mode);
-		inputNode.setPreprocessing(Collections.singletonList(preprocessing));
+		inputNode.setPreprocessing(Arrays.asList(clip, zeroMean));
 		specification.addInputNode(inputNode);
 		// output node
 		OutputNodeSpecification outputNode = new DefaultOutputNodeSpecification();
@@ -187,17 +199,53 @@ public class ModelSpecificationTest {
 		outputNode.setShapeOffset(shapeOffset);
 		outputNode.setShapeReferenceInput(inputName);
 		outputNode.setShapeScale(shapeScale);
-		ScaleLinearTransformation postprocessing = new ScaleLinearTransformation();
-		postprocessing.setGain(std);
-		postprocessing.setOffset(mean);
-		postprocessing.setMode(mode);
-		outputNode.setPostprocessing(Collections.singletonList(postprocessing));
+		outputNode.setPostprocessing(Arrays.asList(binarize, clip, scaleMinMax, scaleLinear));
 		specification.addOutputNode(outputNode);
 		// weights
 		TensorFlowSavedModelBundleSpecification weights = new TensorFlowSavedModelBundleSpecification();
 		weights.setSha256(weightsSha256);
 		weights.setSource(weightsSource);
 		specification.addWeights(weights);
+	}
+
+	private ScaleMinMaxTransformation getScaleMinMaxTransformation() {
+		ScaleMinMaxTransformation res = new ScaleMinMaxTransformation();
+		res.setMinPercentile(minPercentile);
+		res.setMaxPercentile(maxPercentile);
+		res.setReferenceInput(inputName);
+		res.setMode(mode);
+		return res;
+	}
+
+	private ScaleLinearTransformation getScaleLinearTransformation() {
+		ScaleLinearTransformation res = new ScaleLinearTransformation();
+		res.setGain(std);
+		res.setOffset(mean);
+		res.setMode(mode);
+		return res;
+	}
+
+	private ZeroMeanUnitVarianceTransformation getZeroMeanUnitVarianceTransformation() {
+		ZeroMeanUnitVarianceTransformation res = new ZeroMeanUnitVarianceTransformation();
+		res.setMean(mean);
+		res.setStd(std);
+		res.setMode(mode);
+		return res;
+	}
+
+	private BinarizeTransformation getBinarizeTransformation() {
+		BinarizeTransformation res = new BinarizeTransformation();
+		res.setThreshold(threshold);
+		res.setMode(mode);
+		return res;
+	}
+
+	private ClipTransformation getClipTransformation() {
+		ClipTransformation res = new ClipTransformation();
+		res.setMin(min);
+		res.setMax(max);
+		res.setMode(mode);
+		return res;
 	}
 
 	private void checkExampleValues(ModelSpecification specification) {
@@ -235,12 +283,17 @@ public class ModelSpecificationTest {
 		assertArrayEquals(dataRange.toArray(), _input.getDataRange().toArray());
 		assertArrayEquals(halo.toArray(), _input.getHalo().toArray());
 		assertNotNull(_input.getPreprocessing());
-		assertEquals(1, _input.getPreprocessing().size());
-		assertEquals(ZeroMeanUnitVarianceTransformation.name, _input.getPreprocessing().get(0).getName());
-		ZeroMeanUnitVarianceTransformation preprocessing = (ZeroMeanUnitVarianceTransformation) _input.getPreprocessing().get(0);
-		assertEquals(mean, preprocessing.getMean());
-		assertEquals(std, preprocessing.getStd());
-		assertEquals(mode, preprocessing.getMode());
+		assertEquals(2, _input.getPreprocessing().size());
+		assertEquals(ClipTransformation.name, _input.getPreprocessing().get(0).getName());
+		ClipTransformation clipIn = (ClipTransformation) _input.getPreprocessing().get(0);
+		assertEquals(min, clipIn.getMin());
+		assertEquals(max, clipIn.getMax());
+		assertEquals(mode, clipIn.getMode());
+		assertEquals(ZeroMeanUnitVarianceTransformation.name, _input.getPreprocessing().get(1).getName());
+		ZeroMeanUnitVarianceTransformation zeroMeanIn = (ZeroMeanUnitVarianceTransformation) _input.getPreprocessing().get(1);
+		assertEquals(mean, zeroMeanIn.getMean());
+		assertEquals(std, zeroMeanIn.getStd());
+		assertEquals(mode, zeroMeanIn.getMode());
 
 		// output
 		assertEquals(1, specification.getOutputs().size());
@@ -251,12 +304,27 @@ public class ModelSpecificationTest {
 		assertArrayEquals(shapeOffset.toArray(), _output.getShapeOffset().toArray());
 		assertArrayEquals(shapeScale.toArray(), _output.getShapeScale().toArray());
 		assertNotNull(_output.getPostprocessing());
-		assertEquals(1, _output.getPostprocessing().size());
-		ScaleLinearTransformation postprocessing = (ScaleLinearTransformation) _output.getPostprocessing().get(0);
-		assertEquals(ScaleLinearTransformation.name, postprocessing.getName());
-		assertEquals(std, postprocessing.getGain());
-		assertEquals(mean, postprocessing.getOffset());
-		assertEquals(mode, postprocessing.getMode());
+		assertEquals(4, _output.getPostprocessing().size());
+		assertEquals(BinarizeTransformation.name, _output.getPostprocessing().get(0).getName());
+		BinarizeTransformation binarize = (BinarizeTransformation) _output.getPostprocessing().get(0);
+		assertEquals(threshold, binarize.getThreshold());
+		assertEquals(mode, binarize.getMode());
+		assertEquals(ClipTransformation.name, _output.getPostprocessing().get(1).getName());
+		ClipTransformation clip = (ClipTransformation) _output.getPostprocessing().get(1);
+		assertEquals(min, clip.getMin());
+		assertEquals(max, clip.getMax());
+		assertEquals(mode, clip.getMode());
+		assertEquals(ScaleMinMaxTransformation.name, _output.getPostprocessing().get(2).getName());
+		ScaleMinMaxTransformation scaleMinMax = (ScaleMinMaxTransformation) _output.getPostprocessing().get(2);
+		assertEquals(minPercentile, scaleMinMax.getMinPercentile());
+		assertEquals(maxPercentile, scaleMinMax.getMaxPercentile());
+		assertEquals(inputName, scaleMinMax.getReferenceInput());
+		assertEquals(mode, scaleMinMax.getMode());
+		assertEquals(ScaleLinearTransformation.name, _output.getPostprocessing().get(3).getName());
+		ScaleLinearTransformation scaleLinear = (ScaleLinearTransformation) _output.getPostprocessing().get(3);
+		assertEquals(std, scaleLinear.getGain());
+		assertEquals(mean, scaleLinear.getOffset());
+		assertEquals(mode, scaleLinear.getMode());
 
 		assertNotNull(specification.getWeights());
 		assertEquals(1, specification.getWeights().size());
