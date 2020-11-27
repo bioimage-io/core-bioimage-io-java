@@ -128,8 +128,8 @@ class SpecificationReaderV1 {
 		specification.setLanguage((String) obj.get(idLanguage));
 		specification.setFramework((String) obj.get(idFramework));
 		specification.setSource((String) obj.get(idSource));
-		specification.setTestInputs(Collections.singletonList((String) obj.get(idTestInput)));
-		specification.setTestOutputs(Collections.singletonList((String) obj.get(idTestOutput)));
+		specification.setSampleInputs(Collections.singletonList((String) obj.get(idTestInput)));
+		specification.setSampleOutputs(Collections.singletonList((String) obj.get(idTestOutput)));
 	}
 
 	private static void readInputsOutputs(DefaultModelSpecification specification, Map<String, Object> obj) {
