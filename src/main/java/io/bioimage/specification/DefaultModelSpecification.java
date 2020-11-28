@@ -65,10 +65,12 @@ public class DefaultModelSpecification implements ModelSpecification {
 	private Map<String, Object> trainingKwargs;
 	private Map<String, Object> config;
 
+	@Override
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	@Override
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -77,6 +79,7 @@ public class DefaultModelSpecification implements ModelSpecification {
 		citations.add(citation);
 	}
 
+	@Override
 	public void setAuthors(List<String> modelAuthors) {
 		this.authors = modelAuthors;
 	}
@@ -85,6 +88,7 @@ public class DefaultModelSpecification implements ModelSpecification {
 		this.documentation = documentation;
 	}
 
+	@Override
 	public void setTags(List<String> tags) {
 		this.tags = tags;
 	}

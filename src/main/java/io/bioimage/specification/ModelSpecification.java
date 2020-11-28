@@ -96,4 +96,12 @@ public interface ModelSpecification {
 	void setSampleInputs(List<String> inNames);
 
 	void setSampleOutputs(List<String> outNames);
+
+	void setName(String name);
+
+	void setAuthors(List<String> authors);
+
+	void setTags(List<String> tags);
+
+	void setDescription(String description);
 }
