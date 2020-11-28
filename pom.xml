@@ -11,7 +11,7 @@
 
 	<groupId>io.bioimage</groupId>
 	<artifactId>java-bioimage-io</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.3.3-SNAPSHOT</version>
 
 	<name>bioimage.io Java specification</name>
 	<description>Java implementation of the bioimage.io model specification.</description>
