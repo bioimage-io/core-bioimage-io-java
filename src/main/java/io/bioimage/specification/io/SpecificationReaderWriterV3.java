@@ -227,105 +227,7 @@ class SpecificationReaderWriterV3 {
 		}
 	}
 
-	public static Map<String, Object> write(ModelSpecification specification) {
-		Map<String, Object> data = new LinkedHashMap<>();
-		writeMeta(specification, data);
-		writeInputsOutputs(specification, data);
-		writeWeights(specification, data);
-		writeConfig(specification, data);
-		return data;
-	}
 
-
-	private static void writeWeights(ModelSpecification specification, Map<String, Object> data) {
-		Map<String, Object> weights = new LinkedHashMap<>();
-		if(specification.getWeights() != null) {
-			for (WeightsSpecification weight : specification.getWeights()) {
-				Map<String, Object> weightData = new HashMap<>();
-				weightData.put(idWeightsSource, weight.getSource());
-				weightData.put(idWeightsHash, weight.getSha256());
-				if(weight instanceof TensorFlowSavedModelBundleSpecification) {
-					weightData.put(idWeightsTag, ((TensorFlowSavedModelBundleSpecification) weight).getTag());
-				}
-				weights.put(getWeightsName(weight), weightData);
-			}
-		}
-		data.put(idWeights, weights);
-	}
-
-	private static void writeConfig(ModelSpecification specification, Map<String, Object> data) {
-		Map<String, Object> config = specification.getConfig();
-		if(config != null) data.put(idConfig, config);
-	}
-
-	private static String getWeightsName(WeightsSpecification weight) {
-		if(weight instanceof TensorFlowSavedModelBundleSpecification) return idWeightsTensorFlowSavedModelBundle;
-		return null;
-	}
-
-	private static List<Map<String, Object>> buildTransformationList(List<TransformationSpecification> transformations) {
-		List<Map<String, Object>> res = new ArrayList<>();
-		for (TransformationSpecification transformation : transformations) {
-			res.add(writeTransformation(transformation));
-		}
-		return res;
-	}
-
-	private static void writeInputsOutputs(ModelSpecification specification, Map<String, Object> data) {
-		data.put(idInputs, buildInputList(specification));
-		data.put(idOutputs, buildOutputList(specification));
-	}
-
-	private static void writeMeta(ModelSpecification specification, Map<String, Object> data) {
-		data.put(idFormatVersion, specification.getFormatVersion());
-		data.put(idName, specification.getName());
-		data.put(idTimestamp, specification.getTimestamp());
-		data.put(idDescription, specification.getDescription());
-		data.put(idAuthors, specification.getAuthors());
-		data.put(idCite, buildCitationList(specification));
-		data.put(idDocumentation, specification.getDocumentation());
-		data.put(idTags, specification.getTags());
-		data.put(idLicense, specification.getLicense());
-		data.put(idLanguage, specification.getLanguage());
-		data.put(idFramework, specification.getFramework());
-		data.put(idSource, specification.getSource());
-		data.put(idGitRepo, specification.getGitRepo());
-		data.put(idAttachments, specification.getAttachments());
-		data.put(idTestInputs, specification.getTestInputs());
-		data.put(idTestOutputs, specification.getTestOutputs());
-		data.put(idSampleInputs, specification.getSampleInputs());
-		data.put(idSampleOutputs, specification.getSampleOutputs());
-	}
-
-	private static List<Map<String, Object>> buildInputList(ModelSpecification specification) {
-		List<Map<String, Object>> inputs = new ArrayList<>();
-		if(specification.getInputs() != null) {
-			for (InputNodeSpecification input : specification.getInputs()) {
-				inputs.add(writeInputNode(input));
-			}
-		}
-		return inputs;
-	}
-
-	private static List<Map<String, Object>> buildOutputList(ModelSpecification specification) {
-		List<Map<String, Object>> outputs = new ArrayList<>();
-		if(specification.getOutputs() != null) {
-			for (OutputNodeSpecification output : specification.getOutputs()) {
-				outputs.add(writeOutputNode(output));
-			}
-		}
-		return outputs;
-	}
-
-	private static List<Map<String, Object>> buildCitationList(ModelSpecification specification) {
-		List<Map<String, Object>> cite = new ArrayList<>();
-		if(specification.getCitations() != null) {
-			for (CitationSpecification citation : specification.getCitations()) {
-				cite.add(writeCitation(citation));
-			}
-		}
-		return cite;
-	}
 
 	private static InputNodeSpecification readInputNode(Map data) throws IOException {
 		InputNodeSpecification node = new DefaultInputNodeSpecification();
@@ -443,6 +345,113 @@ class SpecificationReaderWriterV3 {
 		node.setHalo((List<Integer>) data.get(idNodeHalo));
 	}
 
+	private static CitationSpecification readCitation(Map data) {
+		CitationSpecification citation = new DefaultCitationSpecification();
+		citation.setCitationText((String) data.get(idCiteText));
+		citation.setDOIText((String) data.get(idCiteDoi));
+		return citation;
+	}
+
+	static Map<String, Object> write(ModelSpecification specification) {
+		Map<String, Object> data = new LinkedHashMap<>();
+		writeMeta(specification, data);
+		writeInputsOutputs(specification, data);
+		writeWeights(specification, data);
+		writeConfig(specification, data);
+		return data;
+	}
+
+
+	private static void writeWeights(ModelSpecification specification, Map<String, Object> data) {
+		Map<String, Object> weights = new LinkedHashMap<>();
+		if(specification.getWeights() != null) {
+			for (WeightsSpecification weight : specification.getWeights()) {
+				Map<String, Object> weightData = new HashMap<>();
+				weightData.put(idWeightsSource, weight.getSource());
+				weightData.put(idWeightsHash, weight.getSha256());
+				if(weight instanceof TensorFlowSavedModelBundleSpecification) {
+					weightData.put(idWeightsTag, ((TensorFlowSavedModelBundleSpecification) weight).getTag());
+				}
+				weights.put(getWeightsName(weight), weightData);
+			}
+		}
+		data.put(idWeights, weights);
+	}
+
+	private static void writeConfig(ModelSpecification specification, Map<String, Object> data) {
+		Map<String, Object> config = specification.getConfig();
+		if(config != null) data.put(idConfig, config);
+	}
+
+	private static String getWeightsName(WeightsSpecification weight) {
+		if(weight instanceof TensorFlowSavedModelBundleSpecification) return idWeightsTensorFlowSavedModelBundle;
+		return null;
+	}
+
+	private static List<Map<String, Object>> buildTransformationList(List<TransformationSpecification> transformations) {
+		List<Map<String, Object>> res = new ArrayList<>();
+		for (TransformationSpecification transformation : transformations) {
+			res.add(writeTransformation(transformation));
+		}
+		return res;
+	}
+
+	private static void writeInputsOutputs(ModelSpecification specification, Map<String, Object> data) {
+		data.put(idInputs, buildInputList(specification));
+		data.put(idOutputs, buildOutputList(specification));
+	}
+
+	private static void writeMeta(ModelSpecification specification, Map<String, Object> data) {
+		data.put(idFormatVersion, specification.getFormatVersion());
+		data.put(idName, specification.getName());
+		data.put(idTimestamp, specification.getTimestamp());
+		data.put(idDescription, specification.getDescription());
+		data.put(idAuthors, specification.getAuthors());
+		data.put(idCite, buildCitationList(specification));
+		data.put(idDocumentation, specification.getDocumentation());
+		data.put(idTags, specification.getTags());
+		data.put(idLicense, specification.getLicense());
+		data.put(idLanguage, specification.getLanguage());
+		data.put(idFramework, specification.getFramework());
+		data.put(idSource, specification.getSource());
+		data.put(idGitRepo, specification.getGitRepo());
+		data.put(idAttachments, specification.getAttachments());
+		data.put(idTestInputs, specification.getTestInputs());
+		data.put(idTestOutputs, specification.getTestOutputs());
+		data.put(idSampleInputs, specification.getSampleInputs());
+		data.put(idSampleOutputs, specification.getSampleOutputs());
+	}
+
+	private static List<Map<String, Object>> buildInputList(ModelSpecification specification) {
+		List<Map<String, Object>> inputs = new ArrayList<>();
+		if(specification.getInputs() != null) {
+			for (InputNodeSpecification input : specification.getInputs()) {
+				inputs.add(writeInputNode(input));
+			}
+		}
+		return inputs;
+	}
+
+	private static List<Map<String, Object>> buildOutputList(ModelSpecification specification) {
+		List<Map<String, Object>> outputs = new ArrayList<>();
+		if(specification.getOutputs() != null) {
+			for (OutputNodeSpecification output : specification.getOutputs()) {
+				outputs.add(writeOutputNode(output));
+			}
+		}
+		return outputs;
+	}
+
+	private static List<Map<String, Object>> buildCitationList(ModelSpecification specification) {
+		List<Map<String, Object>> cite = new ArrayList<>();
+		if(specification.getCitations() != null) {
+			for (CitationSpecification citation : specification.getCitations()) {
+				cite.add(writeCitation(citation));
+			}
+		}
+		return cite;
+	}
+
 	private static Map<String, Object> writeNode(NodeSpecification node) {
 		Map<String, Object> res = new LinkedHashMap<>();
 		res.put(idNodeName, node.getName());
@@ -537,15 +546,12 @@ class SpecificationReaderWriterV3 {
 		return res;
 	}
 
-	private static CitationSpecification readCitation(Map data) {
-		CitationSpecification citation = new DefaultCitationSpecification();
-		citation.setCitationText((String) data.get(idCiteText));
-		citation.setDOIText((String) data.get(idCiteDoi));
-		return citation;
-	}
-
-	public static boolean canRead(Map<String, Object> obj) {
+	static boolean canRead(Map<String, Object> obj) {
 		String version = (String) obj.get(idFormatVersion);
 		return Objects.equals(version, "0.3.0");
+	}
+
+	static boolean canWrite(ModelSpecification specification) {
+		return Objects.equals(specification.getFormatVersion(), "0.3.0");
 	}
 }

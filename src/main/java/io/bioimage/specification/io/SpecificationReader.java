@@ -29,12 +29,10 @@
 package io.bioimage.specification.io;
 
 import io.bioimage.specification.DefaultModelSpecification;
-import io.bioimage.specification.ModelSpecification;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -87,12 +85,12 @@ public class SpecificationReader {
 			SpecificationReaderWriterV3.read(specification, obj);
 			return true;
 		}
-		if(SpecificationReaderV2.canRead(obj)) {
-			SpecificationReaderV2.read(specification, obj);
+		if(SpecificationReaderWriterV2.canRead(obj)) {
+			SpecificationReaderWriterV2.read(specification, obj);
 			return true;
 		}
-		if(SpecificationReaderV1.canRead(obj)) {
-			SpecificationReaderV1.read(specification, obj);
+		if(SpecificationReaderWriterV1.canRead(obj)) {
+			SpecificationReaderWriterV1.read(specification, obj);
 			return true;
 		}
 		return false;

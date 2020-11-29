@@ -64,8 +64,6 @@ public class SpecificationWriter {
 
 	public static void write(ModelSpecification specification, File targetDirectory) throws IOException {
 		writeDependenciesFile(targetDirectory);
-		// when (re)writing the specification, use the most recent specification version
-		specification.updateToNewestVersion();
 		Map<String, Object> data = write(specification);
 		Yaml yaml = new Yaml();
 		try (FileWriter writer = new FileWriter(new File(targetDirectory, modelFileName))) {
@@ -74,7 +72,6 @@ public class SpecificationWriter {
 	}
 
 	public static void write(ModelSpecification specification, Path modelSpecificationPath) throws IOException {
-		specification.updateToNewestVersion();
 		Map<String, Object> data = write(specification);
 		Yaml yaml = new Yaml();
 		try {
@@ -86,7 +83,16 @@ public class SpecificationWriter {
 	}
 
 	public static Map<String, Object> write(ModelSpecification specification) {
-		return SpecificationReaderWriterV3.write(specification);
+		if(SpecificationReaderWriterV3.canWrite(specification)) {
+			return SpecificationReaderWriterV3.write(specification);
+		}
+		if(SpecificationReaderWriterV2.canWrite(specification)) {
+			return SpecificationReaderWriterV2.write(specification);
+		}
+		if(SpecificationReaderWriterV1.canWrite(specification)) {
+			return SpecificationReaderWriterV1.write(specification);
+		}
+		return null;
 	}
 
 

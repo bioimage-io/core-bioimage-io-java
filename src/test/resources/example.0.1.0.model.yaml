@@ -1,0 +1,41 @@
+name: modelname
+description: model description
+cite:
+  text: |-
+    my citation
+  doi: https://arxiv.org/abs/2005.02987
+authors: authors
+documentation: model documentation
+tags: [denoising, unet2d]
+license: bsd
+format_version: 0.1.0
+language: java
+framework: tensorflow
+source: denoiseg
+inputs:
+  - name: input
+    axes: byxc
+    data_type: float32
+    data_range: [-inf, inf]
+    shape:
+      min: [1, 4, 4, 1]
+      step: [1, 4, 4, 0]
+outputs:
+  - name: activation_19/Identity
+    axes: byxc
+    data_type: float32
+    data_range: [-inf, inf]
+    halo: [0, 96, 96, 0]
+    shape:
+      reference_input: input
+      scale: [1, 1, 2, 1]
+      offset: [0, 0, 0, 3]
+prediction:
+  preprocess:
+    spec: de.csbdresden.n2v.predict.N2VPrediction::preprocess
+    kwargs: {mean: 100, stdDev: 200}
+  weights: {source: ./variables/variables}
+  postprocess:
+    spec: de.csbdresden.n2v.predict.N2VPrediction::postprocess
+    kwargs: {mean: 100, stdDev: 200}
+  dependencies: ./dependencies.yaml
