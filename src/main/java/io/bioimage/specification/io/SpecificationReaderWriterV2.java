@@ -135,15 +135,16 @@ class SpecificationReaderWriterV2 {
 		specification.setFormatVersion((String) obj.get(idFormatVersion));
 		specification.setLanguage((String) obj.get(idLanguage));
 		specification.setFramework((String) obj.get(idFramework));
-		specification.setSource((String) getSource(obj));
+		specification.setSource((String) obj.get(idSource));
+		specification.setExecutionModel((String) getExecutionModel(obj));
 		specification.setSampleInputs(Collections.singletonList((String) obj.get(idTestInput)));
 		specification.setSampleOutputs(Collections.singletonList((String) obj.get(idTestOutput)));
 	}
 
-	private static Object getSource(Map<String, Object> obj) {
+	private static Object getExecutionModel(Map<String, Object> obj) {
 		Object source = obj.get(idSource);
-		if(source != null && source.equals("n2v")) source = null;
-		return source;
+		if(source.equals("denoiseg")) return source;
+		return null;
 	}
 
 	private static void readInputsOutputs(DefaultModelSpecification specification, Map<String, Object> obj) {
@@ -191,7 +192,9 @@ class SpecificationReaderWriterV2 {
 		post.setGain(pre.getStd());
 		post.setMode(ImageTransformation.Mode.FIXED);
 		specification.getInputs().get(0).setPreprocessing(Collections.singletonList(pre));
-		specification.getOutputs().get(0).setPostprocessing(Collections.singletonList(post));
+		if(!specification.getSource().equals("denoiseg")) {
+			specification.getOutputs().get(0).setPostprocessing(Collections.singletonList(post));
+		}
 	}
 
 	private static InputNodeSpecification readInputNode(Map data) {

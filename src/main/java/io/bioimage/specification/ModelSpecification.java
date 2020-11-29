@@ -83,6 +83,8 @@ public interface ModelSpecification {
 
 	String getTimestamp();
 
+	String getExecutionModel();
+
 	@Deprecated
 	Map<String, Object> getTrainingKwargs();
 

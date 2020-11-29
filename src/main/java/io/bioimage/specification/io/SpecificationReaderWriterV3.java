@@ -140,6 +140,8 @@ class SpecificationReaderWriterV3 {
 
 	private final static String idConfig = "config";
 
+	private final static String idExecutionModel = "execution_model";
+
 	static DefaultModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) throws IOException {
 		readMeta(specification, obj);
 		readInputsOutputs(specification, obj);
@@ -178,6 +180,7 @@ class SpecificationReaderWriterV3 {
 		specification.setFormatVersion((String) obj.get(idFormatVersion));
 		specification.setLanguage((String) obj.get(idLanguage));
 		specification.setFramework((String) obj.get(idFramework));
+		specification.setExecutionModel((String) obj.get(idExecutionModel));
 		specification.setSource((String) parseSource(obj));
 		specification.setGitRepo((String) obj.get(idGitRepo));
 		specification.setTestInputs((List<String>) obj.get(idTestInputs));
@@ -414,6 +417,7 @@ class SpecificationReaderWriterV3 {
 		data.put(idLanguage, specification.getLanguage());
 		data.put(idFramework, specification.getFramework());
 		data.put(idSource, specification.getSource());
+		data.put(idExecutionModel, specification.getExecutionModel());
 		data.put(idGitRepo, specification.getGitRepo());
 		data.put(idAttachments, specification.getAttachments());
 		data.put(idTestInputs, specification.getTestInputs());

@@ -99,6 +99,7 @@ public class SpecificationReaderWriterV2Test {
 		assertEquals("model documentation", specification.getDocumentation());
 		assertEquals("bsd", specification.getLicense());
 		assertEquals("denoiseg", specification.getSource());
+		assertEquals("denoiseg", specification.getExecutionModel());
 		assertArrayEquals(new String[]{"denoising", "unet2d"}, specification.getTags().toArray());
 		assertEquals(1, specification.getCitations().size());
 		CitationSpecification citation = new DefaultCitationSpecification();
@@ -137,13 +138,6 @@ public class SpecificationReaderWriterV2Test {
 		assertEquals("input", _output.getReferenceInputName());
 		assertArrayEquals(new Integer[]{0, 0, 0, 3}, _output.getShapeOffset().toArray());
 		assertArrayEquals(new Double[]{1.0, 1.0, 2.0, 1.0}, _output.getShapeScale().toArray());
-		assertNotNull(_output.getPostprocessing());
-		assertEquals(1, _output.getPostprocessing().size());
-		assertEquals(ScaleLinearTransformation.name, _output.getPostprocessing().get(0).getName());
-		ScaleLinearTransformation postOut = (ScaleLinearTransformation) _output.getPostprocessing().get(0);
-		assertEquals(38.51743, postOut.getGain());
-		assertEquals(23.041513, postOut.getOffset());
-		assertEquals(ImageTransformation.Mode.FIXED, postOut.getMode());
 
 		assertNotNull(specification.getWeights());
 		assertEquals(1, specification.getWeights().size());

@@ -64,6 +64,7 @@ public class DefaultModelSpecification implements ModelSpecification {
 	private String timestamp;
 	private Map<String, Object> trainingKwargs;
 	private Map<String, Object> config;
+	private String executionModel;
 
 	@Override
 	public void setDescription(String description) {
@@ -250,13 +251,13 @@ public class DefaultModelSpecification implements ModelSpecification {
 		return timestamp;
 	}
 
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
+	@Override
+	public String getExecutionModel() {
+		return executionModel;
 	}
 
-	@Override
-	public void updateToNewestVersion() {
-		setFormatVersion(modelZooSpecificationVersion);
+	public void setTimestamp(String timestamp) {
+		this.timestamp = timestamp;
 	}
 
 	public void setLanguage(String language) {
@@ -337,5 +338,9 @@ public class DefaultModelSpecification implements ModelSpecification {
 
 	public void setConfig(Map<String, Object> config) {
 		this.config = config;
+	}
+
+	public void setExecutionModel(String executionModel) {
+		this.executionModel = executionModel;
 	}
 }
