@@ -143,6 +143,7 @@ class SpecificationReaderWriterV2 {
 
 	private static Object getExecutionModel(Map<String, Object> obj) {
 		Object source = obj.get(idSource);
+		if(source == null) return null;
 		if(source.equals("denoiseg")) return source;
 		return null;
 	}
