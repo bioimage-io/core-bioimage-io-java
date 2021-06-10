@@ -1,0 +1,50 @@
+name: modelname
+description: model description
+cite:
+  - text: |-
+      my citation
+    doi: https://arxiv.org/abs/2005.02987
+authors: authors
+documentation: model documentation
+tags: [ denoising, unet2d ]
+license: bsd
+test_inputs: [ test_input.tif ]
+test_outputs: [ test_output.tif ]
+covers: [ thumbnail.png ]
+format_version: 0.3.1
+language: java
+framework: tensorflow
+timestamp: 2021-06-03T15:34:19.685956+02:00
+inputs:
+  - name: input
+    axes: byxc
+    data_type: float32
+    data_range: [ -inf, inf ]
+    shape:
+      min: [ 1, 4, 4, 1 ]
+      step: [ 0, 4, 4, 0 ]
+    preprocessing:
+      - name: zero_mean_unit_variance
+        kwargs: { mode: fixed, axes: ycx, mean: 41498.87, std: 15007.021 }
+outputs:
+  - name: denoised
+    axes: byxc
+    data_type: float32
+    data_range: [ -inf, inf ]
+    halo: [ 0, 32, 32, 0 ]
+    shape:
+      reference_input: input
+      scale: [ 1, 1, 1, 1 ]
+      offset: [ 0, 0, 0, 0 ]
+    postprocessing:
+      - name: scale_linear
+        kwargs: { gain: 41498.87, offset: 15007.021, axes: ycx }
+weights:
+  tensorflow_saved_model_bundle:
+    source: "https://github.com/bioimage-io/fiji-bioimage-io/releases/download/v0.3.1/n2v-sem-demo_savedmodelbundle.zip"
+    sha256: c55ab5528ec0dd8b3e00062df155ba00aef4971d7eacc3ed2d41db1f25917994
+    authors: [ Deborah Schmidt ]
+    tensorflow_version: 1.13.1
+config:
+  fiji: { batchDimLength: 180, batchSize: 64, trainDimensions: 2, neighborhoodRadius: 5, numEpochs: 100,
+          numStepsPerEpoch: 300, patchDimLength: 60, stepsFinished: 30000 }

@@ -104,4 +104,12 @@ public interface ModelSpecification {
 	void setTags(List<String> tags);
 
 	void setDescription(String description);
+
+    String getDependencies();
+
+	List<String> getCovers();
+
+	String getHash();
+
+	ParentSpecification getParent();
 }
