@@ -67,7 +67,7 @@ public interface ModelSpecification {
 
 	List<WeightsSpecification> getWeights();
 
-	List<String> getAuthors();
+	List<AuthorSpecification> getAuthors();
 
 	String getDocumentation();
 
@@ -99,7 +99,7 @@ public interface ModelSpecification {
 
 	void setName(String name);
 
-	void setAuthors(List<String> authors);
+	void setAuthors(List<AuthorSpecification> authors);
 
 	void setTags(List<String> tags);
 
@@ -112,4 +112,16 @@ public interface ModelSpecification {
 	String getHash();
 
 	ParentSpecification getParent();
+
+	List<BadgeSpecification> getBadges();
+
+	void setBadges(List<BadgeSpecification> badges);
+
+	void setVersion(String s);
+
+	void setType(String s);
+
+	String getVersion();
+
+	String getType();
 }

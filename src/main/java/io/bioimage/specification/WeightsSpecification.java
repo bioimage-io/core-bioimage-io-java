@@ -28,6 +28,9 @@
  */
 package io.bioimage.specification;
 
+import java.util.List;
+import java.util.Map;
+
 public interface WeightsSpecification {
     String getSource();
 
@@ -37,5 +40,16 @@ public interface WeightsSpecification {
 
     void setSha256(String sha256);
 
-    String getId();
+    String getParent();
+
+    void setParent(String parent);
+
+    List<AuthorSpecification> getAuthors();
+
+    void setAuthors(List<AuthorSpecification> authors);
+
+    Map<String, String> getAttachments();
+
+    void setAttachments(Map<String, String> attachments);
+
 }

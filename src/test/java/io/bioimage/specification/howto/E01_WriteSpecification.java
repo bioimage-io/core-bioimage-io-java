@@ -28,14 +28,7 @@
  */
 package io.bioimage.specification.howto;
 
-import io.bioimage.specification.CitationSpecification;
-import io.bioimage.specification.DefaultCitationSpecification;
-import io.bioimage.specification.DefaultInputNodeSpecification;
-import io.bioimage.specification.DefaultModelSpecification;
-import io.bioimage.specification.DefaultOutputNodeSpecification;
-import io.bioimage.specification.InputNodeSpecification;
-import io.bioimage.specification.ModelSpecification;
-import io.bioimage.specification.OutputNodeSpecification;
+import io.bioimage.specification.*;
 import io.bioimage.specification.io.SpecificationWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
@@ -62,7 +55,11 @@ public class E01_WriteSpecification {
 
 		// meta data
 		specification.setTags(Arrays.asList("segmentation", "imagej"));
-		specification.setAuthors(Arrays.asList("Maya", "Selma"));
+		AuthorSpecification author1 = new DefaultAuthorSpecification();
+		author1.setName("Maya");
+		AuthorSpecification author2 = new DefaultAuthorSpecification();
+		author1.setName("Selma");
+		specification.setAuthors(Arrays.asList(author1, author2));
 		specification.setLicense("bsd");
 		specification.setName("OurAwesomeModel");
 		CitationSpecification citation = new DefaultCitationSpecification();

@@ -42,8 +42,4 @@ public class TensorFlowSavedModelBundleSpecification extends DefaultWeightsSpeci
 		this.tag = tag;
 	}
 
-	@Override
-	public String getId() {
-		return id;
-	}
 }

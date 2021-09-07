@@ -83,7 +83,7 @@ public class SpecificationReaderWriterV3Test {
         // meta
         assertEquals("0.3.1", specification.getFormatVersion());
         assertEquals("modelname", specification.getName());
-        assertEquals(Collections.singletonList("authors"), specification.getAuthors());
+        assertEquals("authors", specification.getAuthors().get(0).getName());
         assertEquals("model description", specification.getDescription());
         assertEquals("model documentation", specification.getDocumentation());
         assertEquals("bsd", specification.getLicense());

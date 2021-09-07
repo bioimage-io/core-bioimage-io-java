@@ -36,6 +36,7 @@ public class DefaultInputNodeSpecification extends DefaultNodeSpecification impl
 	private List<Integer> shapeStep;
 	private List<TransformationSpecification> preprocessing;
 
+
 	@Override
 	public void setShapeMin(List<Integer> shapeMin) {
 		this.shapeMin = shapeMin;

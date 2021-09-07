@@ -52,4 +52,8 @@ public interface NodeSpecification {
 	void setDataRange(List<?> dataRange);
 
 	void setHalo(List<Integer> halo);
+
+	String getDescription();
+
+	void setDescription(String description);
 }

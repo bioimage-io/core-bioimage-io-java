@@ -94,7 +94,7 @@ public class SpecificationReaderWriterV2Test {
 		// meta
 		assertEquals("0.2.0-csbdeep", specification.getFormatVersion());
 		assertEquals("modelname", specification.getName());
-		assertEquals(Collections.singletonList("authors"), specification.getAuthors());
+		assertEquals(Collections.singletonList("authors"), Collections.singletonList(specification.getAuthors().get(0).getName()));
 		assertEquals("model description", specification.getDescription());
 		assertEquals("model documentation", specification.getDocumentation());
 		assertEquals("bsd", specification.getLicense());

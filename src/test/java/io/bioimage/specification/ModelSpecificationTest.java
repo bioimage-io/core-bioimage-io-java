@@ -50,6 +50,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -64,7 +65,9 @@ public class ModelSpecificationTest {
 
 	// example values
 	private final static String source = "trainingSource";
-	private final static List<String> modelAuthors = Arrays.asList("author1", "author2");
+	private final static List<AuthorSpecification> modelAuthors = Arrays.asList(
+			new DefaultAuthorSpecification("author1"),
+			new DefaultAuthorSpecification("author2"));
 	private final static String description = "description";
 	private final static String documentation = "DOCUMENTATION_LINK";
 	private final static String license = "bsd";
@@ -251,7 +254,7 @@ public class ModelSpecificationTest {
 	private void checkExampleValues(ModelSpecification specification) {
 		// meta
 		assertEquals(modelName, specification.getName());
-		assertEquals(modelAuthors, specification.getAuthors());
+		assertEquals(modelAuthors.stream().map(spec -> spec.getName()).collect(Collectors.toList()), specification.getAuthors().stream().map(spec -> spec.getName()).collect(Collectors.toList()));
 		assertEquals(description, specification.getDescription());
 		assertEquals(documentation, specification.getDocumentation());
 		assertEquals(license, specification.getLicense());
@@ -281,7 +284,6 @@ public class ModelSpecificationTest {
 		assertArrayEquals(shapeMin.toArray(), _input.getShapeMin().toArray());
 		assertArrayEquals(shapeStep.toArray(), _input.getShapeStep().toArray());
 		assertArrayEquals(dataRange.toArray(), _input.getDataRange().toArray());
-		assertArrayEquals(halo.toArray(), _input.getHalo().toArray());
 		assertNotNull(_input.getPreprocessing());
 		assertEquals(2, _input.getPreprocessing().size());
 		assertEquals(ClipTransformation.name, _input.getPreprocessing().get(0).getName());

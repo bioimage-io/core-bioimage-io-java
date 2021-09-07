@@ -34,8 +34,12 @@ public interface CitationSpecification {
 
 	void setDOIText(String doiText);
 
+	void setUrl(String url);
+
 	String getCitationText();
 
 	String getDoiText();
+
+	String getUrl();
 
 }

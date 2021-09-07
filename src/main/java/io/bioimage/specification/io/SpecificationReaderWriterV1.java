@@ -104,9 +104,11 @@ class SpecificationReaderWriterV1 {
         Object authors = obj.get(idAuthors);
         if (authors != null) {
             if (List.class.isAssignableFrom(authors.getClass())) {
-                specification.setAuthors(((List<String>) authors));
+                specification.setAuthors(((List<AuthorSpecification>) authors));
             } else if (String.class.isAssignableFrom(authors.getClass())) {
-                specification.setAuthors(Arrays.asList((String) authors));
+                AuthorSpecification authorSpecification = new DefaultAuthorSpecification();
+                authorSpecification.setName((String) authors);
+                specification.setAuthors(Arrays.asList(authorSpecification));
             }
         }
         specification.setDocumentation((String) obj.get(idDocumentation));

@@ -65,14 +65,17 @@ class SpecificationReaderWriterV3 {
     private final static String idWeightsSource = "source";
     private final static String idWeightsHash = "sha256";
     private final static String idWeightsTag = "tag";
-    private final static String idDependencies = "dependencies";
     private final static String idPackagedBy = "packaged_by";
+    private final static String idDependencies = "dependencies";
+    private final static String idType = "type";
+    private final static String idVersion = "version";
     private final static String idParent = "parent";
     private final static String idParentUri = "uri";
     private final static String idParentHash = "sha256";
 
     private final static String idNodeName = "name";
     private final static String idNodeAxes = "axes";
+    private final static String idNodeDescription = "description";
     private final static String idNodeDataType = "data_type";
     private final static String idNodeDataRange = "data_range";
     private final static String idNodeShape = "shape";
@@ -86,9 +89,13 @@ class SpecificationReaderWriterV3 {
     private final static String idNodeShapeOffset = "offset";
     private final static String idNodePostprocessing = "postprocessing";
 
-
     private final static String idCiteText = "text";
     private final static String idCiteDoi = "doi";
+    private final static String idCiteUrl = "url";
+
+    private final static String idAuthorName = "name";
+    private final static String idAuthorAffiliation = "affiliation";
+    private final static String idAuthorOrcid = "orcid";
 
     private final static String idTransformationName = "name";
     private final static String idTransformationKwargs = "kwargs";
@@ -137,6 +144,8 @@ class SpecificationReaderWriterV3 {
     private static void readMeta(DefaultModelSpecification specification, Map<String, Object> obj) {
         specification.setName((String) obj.get(idName));
         specification.setDescription((String) obj.get(idDescription));
+        specification.setVersion((String) obj.get(idVersion));
+        specification.setType((String) obj.get(idType));
         if (obj.get(idTimestamp) == null) {
             specification.setTimestamp((String) obj.get(idTimestamp));
         } else {
@@ -149,12 +158,18 @@ class SpecificationReaderWriterV3 {
                 specification.addCitation(readCitation(citation));
             }
         }
-        Object authors = obj.get(idAuthors);
-        if (authors != null) {
-            if (List.class.isAssignableFrom(authors.getClass())) {
-                specification.setAuthors(((List<String>) authors));
-            } else if (String.class.isAssignableFrom(authors.getClass())) {
-                specification.setAuthors(Arrays.asList((String) authors));
+        List<Object> authors = (List<Object>) obj.get(idAuthors);
+        if (authors != null && List.class.isAssignableFrom(authors.getClass())) {
+            if(!authors.isEmpty() && Map.class.isAssignableFrom(authors.get(0).getClass())){
+                for(Object author : authors){
+                    specification.addAuthor(readAuthor((Map) author));
+                }
+            }else if(!authors.isEmpty() && String.class.isAssignableFrom(authors.get(0).getClass())){
+                for(Object author : authors){
+                    AuthorSpecification authSpec = new DefaultAuthorSpecification();
+                    authSpec.setName((String) author);
+                    specification.addAuthor(authSpec);
+                }
             }
         }
         Object attachments = obj.get(idAttachments);
@@ -181,6 +196,14 @@ class SpecificationReaderWriterV3 {
         specification.setPackaged_by((String) obj.get(idPackagedBy));
         specification.setDependencies((String) obj.get(idDependencies));
         specification.setParent(parseParent(obj));
+    }
+
+    private static AuthorSpecification readAuthor(Map data) {
+        AuthorSpecification author = new DefaultAuthorSpecification();
+        author.setName((String) data.get(idAuthorName));
+        author.setAffiliation((String) data.get(idAuthorAffiliation));
+        author.setOrcId((String) data.get(idAuthorOrcid));
+        return author;
     }
 
     private static ParentSpecification parseParent(Map<String, Object> obj) {
@@ -332,6 +355,7 @@ class SpecificationReaderWriterV3 {
         node.setShapeReferenceInput((String) shapeData.get(idNodeShapeReferenceInput));
         node.setShapeScale((List<Number>) shapeData.get(idNodeShapeScale));
         node.setShapeOffset((List<Integer>) shapeData.get(idNodeShapeOffset));
+        node.setHalo((List<Integer>) data.get(idNodeHalo));
         Object postprocessings = data.get(idNodePostprocessing);
         ArrayList<TransformationSpecification> postprocessing = null;
         if (postprocessings != null && List.class.isAssignableFrom(postprocessings.getClass())) {
@@ -349,13 +373,14 @@ class SpecificationReaderWriterV3 {
         node.setAxes((String) data.get(idNodeAxes));
         node.setDataType((String) data.get(idNodeDataType));
         node.setDataRange((List<?>) data.get(idNodeDataRange));
-        node.setHalo((List<Integer>) data.get(idNodeHalo));
+        node.setDescription((String) data.get(idNodeDescription));
     }
 
     private static CitationSpecification readCitation(Map data) {
         CitationSpecification citation = new DefaultCitationSpecification();
         citation.setCitationText((String) data.get(idCiteText));
         citation.setDOIText((String) data.get(idCiteDoi));
+        citation.setUrl((String) data.get(idCiteUrl));
         return citation;
     }
 
@@ -413,7 +438,7 @@ class SpecificationReaderWriterV3 {
         data.put(idName, specification.getName());
         data.put(idTimestamp, specification.getTimestamp());
         data.put(idDescription, specification.getDescription());
-        data.put(idAuthors, specification.getAuthors());
+        data.put(idAuthors, buildAuthorList(specification));
         data.put(idCite, buildCitationList(specification));
         data.put(idDocumentation, specification.getDocumentation());
         data.put(idTags, specification.getTags());
@@ -432,7 +457,25 @@ class SpecificationReaderWriterV3 {
         data.put(idCovers, specification.getCovers());
         data.put(idHash, specification.getHash());
         data.put(idParent, buildParent(specification));
+        data.put(idVersion, specification.getVersion());
+        data.put(idType, specification.getType());
     }
+
+    private static List<Map<String, Object>> buildAuthorList(ModelSpecification specification) {
+        List<Map<String, Object>> authors = new ArrayList<>();
+        if (specification.getAuthors() == null) {
+            return null;
+        }
+        for(AuthorSpecification authorSpec : specification.getAuthors()){
+            Map<String, Object> author = new HashMap<>();
+            author.put(idAuthorName, authorSpec.getName());
+            author.put(idAuthorOrcid, authorSpec.getOrcId());
+            author.put(idAuthorAffiliation, authorSpec.getAffiliation());
+            authors.add(author);
+        }
+        return authors;
+    }
+
 
     private static Map<String, Object> buildParent(ModelSpecification specification) {
         Map<String, Object> parent = new HashMap<>();
@@ -565,18 +608,17 @@ class SpecificationReaderWriterV3 {
         Map<String, Object> res = new LinkedHashMap<>();
         res.put(idCiteText, citation.getCitationText());
         res.put(idCiteDoi, citation.getDoiText());
+        res.put(idCiteUrl, citation.getUrl());
         return res;
     }
 
     public static boolean canRead(Map<String, Object> obj) {
         String version = (String) obj.get(idFormatVersion);
-        return Objects.equals(version, "0.3.1")
-                || Objects.equals(version, "0.3.0");
+        return version.startsWith("0.3.");
     }
 
     static boolean canWrite(ModelSpecification specification) {
         String version = specification.getFormatVersion();
-        return Objects.equals(version, "0.3.1")
-                || Objects.equals(version, "0.3.0");
+        return version.startsWith("0.3.");
     }
 }

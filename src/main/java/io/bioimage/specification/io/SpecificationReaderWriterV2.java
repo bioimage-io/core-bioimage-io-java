@@ -35,6 +35,7 @@ import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformati
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.bioimage.specification.util.SpecificationUtil.asMap;
 
@@ -107,9 +108,21 @@ class SpecificationReaderWriterV2 {
         Object authors = obj.get(idAuthors);
         if (authors != null) {
             if (List.class.isAssignableFrom(authors.getClass())) {
-                specification.setAuthors(((List<String>) authors));
+                if(!((List<?>) authors).isEmpty() && String.class.isAssignableFrom(((List<?>) authors).get(0).getClass())){
+                    List<AuthorSpecification> authorsList = ((List<String>) authors).stream().map(name->{
+                        AuthorSpecification author = new DefaultAuthorSpecification();
+                        author.setName(name);
+                        return author;
+                    }).collect(Collectors.toList());
+                    specification.setAuthors(authorsList);
+                }else{
+                    specification.setAuthors((List<AuthorSpecification>) authors);
+                }
+
             } else if (String.class.isAssignableFrom(authors.getClass())) {
-                specification.setAuthors(Arrays.asList((String) authors));
+                AuthorSpecification author = new DefaultAuthorSpecification();
+                author.setName((String) authors);
+                specification.setAuthors(Arrays.asList(author));
             }
         }
         specification.setDocumentation((String) obj.get(idDocumentation));

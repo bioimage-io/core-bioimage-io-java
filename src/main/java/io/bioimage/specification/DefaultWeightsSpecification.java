@@ -28,10 +28,17 @@
  */
 package io.bioimage.specification;
 
+import java.util.List;
+import java.util.Map;
+
 public abstract class DefaultWeightsSpecification implements WeightsSpecification {
 
     private String source;
     private String sha256;
+    private String parent;
+    private List<AuthorSpecification> authors;
+    private Map<String, String> attachments;
+
 
     @Override
     public String getSource() {
@@ -51,6 +58,36 @@ public abstract class DefaultWeightsSpecification implements WeightsSpecificatio
     @Override
     public void setSha256(String sha256) {
         this.sha256 = sha256;
+    }
+
+    @Override
+    public String getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(String parent) {
+        this.parent = parent;
+    }
+
+    @Override
+    public List<AuthorSpecification> getAuthors() {
+        return authors;
+    }
+
+    @Override
+    public void setAuthors(List<AuthorSpecification> authors) {
+        this.authors = authors;
+    }
+
+    @Override
+    public Map<String, String> getAttachments() {
+        return attachments;
+    }
+
+    @Override
+    public void setAttachments(Map<String, String> attachments) {
+        this.attachments = attachments;
     }
 
 }

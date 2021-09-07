@@ -4,7 +4,8 @@ cite:
   - text: |-
       my citation
     doi: https://arxiv.org/abs/2005.02987
-authors: authors
+authors:
+  - name: authors
 documentation: model documentation
 tags: [ denoising, unet2d ]
 license: bsd

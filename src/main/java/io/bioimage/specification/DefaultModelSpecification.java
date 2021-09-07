@@ -39,7 +39,7 @@ import java.util.Map;
  */
 public class DefaultModelSpecification implements ModelSpecification {
 
-    final static String modelZooSpecificationVersion = "0.3.0";
+    final static String modelZooSpecificationVersion = "0.3.2";
     private String language = "java";
     private String framework;
     private String formatVersion = modelZooSpecificationVersion;
@@ -51,7 +51,7 @@ public class DefaultModelSpecification implements ModelSpecification {
     private String name;
     private String description;
     private List<CitationSpecification> citations = new ArrayList<>();
-    private List<String> authors;
+    private List<AuthorSpecification> authors = new ArrayList<>();
     private String documentation;
     private List<String> tags;
     private String license;
@@ -70,6 +70,9 @@ public class DefaultModelSpecification implements ModelSpecification {
     private List<String> covers = new ArrayList<>();
     private String dependencies;
     private String packaged_by;
+    private List<BadgeSpecification> badges;
+    private String version;
+    private String type;
 
     public static String getModelZooSpecificationVersion() {
         return modelZooSpecificationVersion;
@@ -111,6 +114,36 @@ public class DefaultModelSpecification implements ModelSpecification {
         return parent;
     }
 
+    @Override
+    public List<BadgeSpecification> getBadges() {
+        return badges;
+    }
+
+    @Override
+    public void setBadges(List<BadgeSpecification> badges) {
+        this.badges = badges;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    @Override
+    public String getType() {
+        return type;
+    }
+
     public void setParent(ParentSpecification parent) {
         this.parent = parent;
     }
@@ -141,6 +174,10 @@ public class DefaultModelSpecification implements ModelSpecification {
 
     public void addCitation(CitationSpecification citation) {
         citations.add(citation);
+    }
+
+    public void addAuthor(AuthorSpecification author) {
+        authors.add(author);
     }
 
     public void addInputNode(InputNodeSpecification inputNode) {
@@ -246,12 +283,12 @@ public class DefaultModelSpecification implements ModelSpecification {
     }
 
     @Override
-    public List<String> getAuthors() {
+    public List<AuthorSpecification> getAuthors() {
         return unmodifiable(authors);
     }
 
     @Override
-    public void setAuthors(List<String> modelAuthors) {
+    public void setAuthors(List<AuthorSpecification> modelAuthors) {
         this.authors = modelAuthors;
     }
 
