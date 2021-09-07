@@ -254,7 +254,7 @@ class SpecificationReaderWriterV3 {
                 weightsSpec.setSha256((String) data.get(idWeightsHash));
                 weightsSpec.setSource((String) data.get(idWeightsSource));
             }
-            specification.addWeights(weightsSpec);
+            specification.addWeights(TensorFlowSavedModelBundleSpecification.id, weightsSpec);
         }
     }
 
@@ -397,14 +397,14 @@ class SpecificationReaderWriterV3 {
     private static void writeWeights(ModelSpecification specification, Map<String, Object> data) {
         Map<String, Object> weights = new LinkedHashMap<>();
         if (specification.getWeights() != null) {
-            for (WeightsSpecification weight : specification.getWeights()) {
+            for (Map.Entry<String, WeightsSpecification> weightEntry : specification.getWeights().entrySet()) {
                 Map<String, Object> weightData = new HashMap<>();
-                weightData.put(idWeightsSource, weight.getSource());
-                weightData.put(idWeightsHash, weight.getSha256());
-                if (weight instanceof TensorFlowSavedModelBundleSpecification) {
-                    weightData.put(idWeightsTag, ((TensorFlowSavedModelBundleSpecification) weight).getTag());
+                weightData.put(idWeightsSource, weightEntry.getValue().getSource());
+                weightData.put(idWeightsHash, weightEntry.getValue().getSha256());
+                if (weightEntry.getValue() instanceof TensorFlowSavedModelBundleSpecification) {
+                    weightData.put(idWeightsTag, ((TensorFlowSavedModelBundleSpecification) weightEntry.getValue()).getTag());
                 }
-                weights.put(getWeightsName(weight), weightData);
+                weights.put(weightEntry.getKey(), weightData);
             }
         }
         data.put(idWeights, weights);

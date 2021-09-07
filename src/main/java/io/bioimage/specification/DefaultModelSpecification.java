@@ -28,10 +28,7 @@
  */
 package io.bioimage.specification;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is the ImageJ version of the model zoo configuration specification
@@ -58,7 +55,7 @@ public class DefaultModelSpecification implements ModelSpecification {
     private String source;
     private List<InputNodeSpecification> inputNodes = new ArrayList<>();
     private List<OutputNodeSpecification> outputNodes = new ArrayList<>();
-    private List<WeightsSpecification> weights = new ArrayList<>();
+    private Map<String, WeightsSpecification> weights = new HashMap<>();
     private String gitRepo;
     private Map<String, String> attachments;
     private String timestamp;
@@ -274,11 +271,11 @@ public class DefaultModelSpecification implements ModelSpecification {
     }
 
     @Override
-    public List<WeightsSpecification> getWeights() {
+    public Map<String, WeightsSpecification> getWeights() {
         return unmodifiable(weights);
     }
 
-    public void setWeights(List<WeightsSpecification> weights) {
+    public void setWeights(Map<String, WeightsSpecification> weights) {
         this.weights = weights;
     }
 
@@ -446,7 +443,7 @@ public class DefaultModelSpecification implements ModelSpecification {
         this.config = config;
     }
 
-    public void addWeights(WeightsSpecification weights) {
-        this.weights.add(weights);
+    public void addWeights(String name, WeightsSpecification weights) {
+        this.weights.put(name,weights);
     }
 }

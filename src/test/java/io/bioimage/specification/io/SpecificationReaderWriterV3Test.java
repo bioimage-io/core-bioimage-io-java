@@ -127,7 +127,7 @@ public class SpecificationReaderWriterV3Test {
 
         assertNotNull(specification.getWeights());
         assertEquals(1, specification.getWeights().size());
-        WeightsSpecification weights = specification.getWeights().get(0);
+        WeightsSpecification weights = specification.getWeights().get(TensorFlowSavedModelBundleSpecification.id);
         assertTrue(weights instanceof TensorFlowSavedModelBundleSpecification);
         assertNotNull(weights.getSha256());
         assertNotNull(weights.getSource());

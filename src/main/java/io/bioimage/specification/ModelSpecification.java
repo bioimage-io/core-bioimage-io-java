@@ -65,7 +65,7 @@ public interface ModelSpecification {
 
 	List<CitationSpecification> getCitations();
 
-	List<WeightsSpecification> getWeights();
+	Map<String, WeightsSpecification> getWeights();
 
 	List<AuthorSpecification> getAuthors();
 

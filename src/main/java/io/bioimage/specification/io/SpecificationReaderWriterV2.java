@@ -92,7 +92,7 @@ class SpecificationReaderWriterV2 {
         readPrediction(specification, obj);
         WeightsSpecification weights = new TensorFlowSavedModelBundleSpecification();
         weights.setSource(null);
-        specification.addWeights(weights);
+        specification.addWeights(TensorFlowSavedModelBundleSpecification.id, weights);
         return specification;
     }
 

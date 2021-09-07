@@ -208,7 +208,7 @@ public class ModelSpecificationTest {
 		TensorFlowSavedModelBundleSpecification weights = new TensorFlowSavedModelBundleSpecification();
 		weights.setSha256(weightsSha256);
 		weights.setSource(weightsSource);
-		specification.addWeights(weights);
+		specification.addWeights(TensorFlowSavedModelBundleSpecification.id, weights);
 	}
 
 	private ScaleMinMaxTransformation getScaleMinMaxTransformation() {
@@ -330,7 +330,7 @@ public class ModelSpecificationTest {
 
 		assertNotNull(specification.getWeights());
 		assertEquals(1, specification.getWeights().size());
-		WeightsSpecification weights = specification.getWeights().get(0);
+		WeightsSpecification weights = specification.getWeights().get(TensorFlowSavedModelBundleSpecification.id);
 		assertTrue(weights instanceof TensorFlowSavedModelBundleSpecification);
 		assertEquals(weightsSha256, weights.getSha256());
 		assertEquals(weightsSource, weights.getSource());
