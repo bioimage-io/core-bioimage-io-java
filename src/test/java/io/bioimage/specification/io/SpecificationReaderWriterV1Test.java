@@ -93,7 +93,7 @@ public class SpecificationReaderWriterV1Test {
 		// meta
 		assertEquals("0.1.0", specification.getFormatVersion());
 		assertEquals("modelname", specification.getName());
-		assertEquals(Collections.singletonList("authors"), specification.getAuthors());
+		assertEquals(Collections.singletonList("authors"), Collections.singletonList(specification.getAuthors().get(0).getName()));
 		assertEquals("model description", specification.getDescription());
 		assertEquals("model documentation", specification.getDocumentation());
 		assertEquals("bsd", specification.getLicense());
@@ -140,7 +140,7 @@ public class SpecificationReaderWriterV1Test {
 
 		assertNotNull(specification.getWeights());
 		assertEquals(1, specification.getWeights().size());
-		WeightsSpecification weights = specification.getWeights().get(0);
+		WeightsSpecification weights = specification.getWeights().get(TensorFlowSavedModelBundleSpecification.id);
 		assertTrue(weights instanceof TensorFlowSavedModelBundleSpecification);
 		assertNull(weights.getSha256());
 		assertNull(weights.getSource());

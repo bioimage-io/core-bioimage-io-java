@@ -56,7 +56,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class SpecificationWriter {
 
 	public final static String dependenciesFileName = "dependencies.yaml";
-	final static String modelFileName = "model.yaml";
+	final static String modelFileName = "rdf.yaml";
 
 	public static void write(ModelSpecification specification, String targetDirectory) throws IOException {
 		write(specification, new File(targetDirectory));

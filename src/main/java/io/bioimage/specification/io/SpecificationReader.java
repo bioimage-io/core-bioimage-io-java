@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -43,56 +43,56 @@ import static io.bioimage.specification.io.SpecificationWriter.modelFileName;
 
 public class SpecificationReader {
 
-	public static boolean readFromZIP(File zippedModel, DefaultModelSpecification specification) {
-		try {
-			return read(SpecificationWriter.extractFile(zippedModel, modelFileName), specification);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+    public static boolean readFromZIP(File zippedModel, DefaultModelSpecification specification) {
+        try {
+            return read(SpecificationWriter.extractFile(zippedModel, modelFileName), specification);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	public static boolean readFromDirectory(File directory, DefaultModelSpecification specification) throws IOException {
-		return read(new File(directory, modelFileName), specification);
-	}
+    public static boolean readFromDirectory(File directory, DefaultModelSpecification specification) throws IOException {
+        return read(new File(directory, modelFileName), specification);
+    }
 
-	public static boolean read(String modelSpecificationFile, DefaultModelSpecification specification) throws IOException {
-		return read(new File(modelSpecificationFile), specification);
-	}
+    public static boolean read(String modelSpecificationFile, DefaultModelSpecification specification) throws IOException {
+        return read(new File(modelSpecificationFile), specification);
+    }
 
-	public static boolean read(File modelSpecificationFile, DefaultModelSpecification specification) throws IOException {
-		try (InputStream stream = new FileInputStream(modelSpecificationFile)) {
-			return read(stream, specification);
-		}
-	}
+    public static boolean read(File modelSpecificationFile, DefaultModelSpecification specification) throws IOException {
+        try (InputStream stream = new FileInputStream(modelSpecificationFile)) {
+            return read(stream, specification);
+        }
+    }
 
-	public static boolean read(Path modelSpecificationPath, DefaultModelSpecification specification) throws IOException {
-		try (InputStream stream = Files.newInputStream(modelSpecificationPath)) {
-			return read(stream, specification);
-		}
-	}
+    public static boolean read(Path modelSpecificationPath, DefaultModelSpecification specification) throws IOException {
+        try (InputStream stream = Files.newInputStream(modelSpecificationPath)) {
+            return read(stream, specification);
+        }
+    }
 
-	public static boolean read(InputStream stream, DefaultModelSpecification specification) throws IOException {
-		Yaml yaml = new Yaml();
-		Map<String, Object> obj = yaml.load(stream);
+    public static boolean read(InputStream stream, DefaultModelSpecification specification) throws IOException {
+        Yaml yaml = new Yaml();
+        Map<String, Object> obj = yaml.load(stream);
 //		System.out.println(obj);
-		if (obj == null) return false;
-		return read(obj, specification);
-	}
+        if (obj == null) return false;
+        return read(obj, specification);
+    }
 
-	private static boolean read(Map<String, Object> obj, DefaultModelSpecification specification) throws IOException {
-		if(SpecificationReaderWriterV3.canRead(obj)) {
-			SpecificationReaderWriterV3.read(specification, obj);
-			return true;
-		}
-		if(SpecificationReaderWriterV2.canRead(obj)) {
-			SpecificationReaderWriterV2.read(specification, obj);
-			return true;
-		}
-		if(SpecificationReaderWriterV1.canRead(obj)) {
-			SpecificationReaderWriterV1.read(specification, obj);
-			return true;
-		}
-		return false;
-	}
+    private static boolean read(Map<String, Object> obj, DefaultModelSpecification specification) throws IOException {
+        if (SpecificationReaderWriterV3.canRead(obj)) {
+            SpecificationReaderWriterV3.read(specification, obj);
+            return true;
+        }
+        if (SpecificationReaderWriterV2.canRead(obj)) {
+            SpecificationReaderWriterV2.read(specification, obj);
+            return true;
+        }
+        if (SpecificationReaderWriterV1.canRead(obj)) {
+            SpecificationReaderWriterV1.read(specification, obj);
+            return true;
+        }
+        return false;
+    }
 }

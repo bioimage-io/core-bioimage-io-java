@@ -31,7 +31,7 @@ package io.bioimage.specification.weights;
 import io.bioimage.specification.DefaultWeightsSpecification;
 
 public class TensorFlowSavedModelBundleSpecification extends DefaultWeightsSpecification {
-	public static final String id = "tensorflow-saved-model-bundle";
+	public static final String id = "tensorflow_saved_model_bundle";
 	private String tag = "serve";
 
 	public String getTag() {
@@ -42,8 +42,4 @@ public class TensorFlowSavedModelBundleSpecification extends DefaultWeightsSpeci
 		this.tag = tag;
 	}
 
-	@Override
-	public String getId() {
-		return id;
-	}
 }

@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,10 +28,7 @@
  */
 package io.bioimage.specification;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This is the ImageJ version of the model zoo configuration specification
@@ -39,308 +36,414 @@ import java.util.Map;
  */
 public class DefaultModelSpecification implements ModelSpecification {
 
-	final static String modelZooSpecificationVersion = "0.3.0";
-	private String language = "java";
-	private String framework;
-	private String formatVersion = modelZooSpecificationVersion;
-	private List<String> sampleInputs = new ArrayList<>();
+    final static String modelZooSpecificationVersion = "0.3.2";
+    private String language = "java";
+    private String framework;
+    private String formatVersion = modelZooSpecificationVersion;
+    private List<String> sampleInputs = new ArrayList<>();
 
-	private List<String> sampleOutputs = new ArrayList<>();
-	private List<String> testInputs = new ArrayList<>();
-	private List<String> testOutputs = new ArrayList<>();
-	private String name;
-	private String description;
-	private List<CitationSpecification> citations = new ArrayList<>();
-	private List<String> authors;
-	private String documentation;
-	private List<String> tags;
-	private String license;
-	private String source;
-	private List<InputNodeSpecification> inputNodes = new ArrayList<>();
-	private List<OutputNodeSpecification> outputNodes = new ArrayList<>();
-	private List<WeightsSpecification> weights = new ArrayList<>();
-	private String gitRepo;
-	private Map<String, String> attachments;
-	private String timestamp;
-	private Map<String, Object> trainingKwargs;
-	private Map<String, Object> config;
-	private String executionModel;
+    private List<String> sampleOutputs = new ArrayList<>();
+    private List<String> testInputs = new ArrayList<>();
+    private List<String> testOutputs = new ArrayList<>();
+    private String name;
+    private String description;
+    private List<CitationSpecification> citations = new ArrayList<>();
+    private List<AuthorSpecification> authors = new ArrayList<>();
+    private String documentation;
+    private List<String> tags;
+    private String license;
+    private String source;
+    private List<InputNodeSpecification> inputNodes = new ArrayList<>();
+    private List<OutputNodeSpecification> outputNodes = new ArrayList<>();
+    private Map<String, WeightsSpecification> weights = new HashMap<>();
+    private String gitRepo;
+    private Map<String, String> attachments;
+    private String timestamp;
+    private Map<String, Object> trainingKwargs;
+    private Map<String, Object> config;
+    private String executionModel;
+    private String hash;
+    private ParentSpecification parent;
+    private List<String> covers = new ArrayList<>();
+    private String dependencies;
+    private String packaged_by;
+    private List<BadgeSpecification> badges;
+    private String version;
+    private String type;
 
-	@Override
-	public void setDescription(String description) {
-		this.description = description;
-	}
+    public static String getModelZooSpecificationVersion() {
+        return modelZooSpecificationVersion;
+    }
 
-	@Override
-	public void setName(String name) {
-		this.name = name;
-	}
+    private static <T> List<T> unmodifiable(List<T> list) {
+        return list != null ? Collections.unmodifiableList(list) : null;
+    }
 
-	public void addCitation(CitationSpecification citation) {
-		citations.add(citation);
-	}
+    private static <T, S> Map<T, S> unmodifiable(Map<T, S> map) {
+        return map != null ? Collections.unmodifiableMap(map) : null;
+    }
 
-	@Override
-	public void setAuthors(List<String> modelAuthors) {
-		this.authors = modelAuthors;
-	}
+    public List<InputNodeSpecification> getInputNodes() {
+        return inputNodes;
+    }
 
-	public void setDocumentation(String documentation) {
-		this.documentation = documentation;
-	}
+    public void setInputNodes(List<InputNodeSpecification> inputNodes) {
+        this.inputNodes = inputNodes;
+    }
 
-	@Override
-	public void setTags(List<String> tags) {
-		this.tags = tags;
-	}
+    public List<OutputNodeSpecification> getOutputNodes() {
+        return outputNodes;
+    }
 
-	public void setLicense(String license) {
-		this.license = license;
-	}
+    public void setOutputNodes(List<OutputNodeSpecification> outputNodes) {
+        this.outputNodes = outputNodes;
+    }
 
-	public void setSource(String source) {
-		this.source = source;
-	}
+    public String getHash() {
+        return hash;
+    }
 
-	public void addInputNode(InputNodeSpecification inputNode) {
-		inputNodes.add(inputNode);
-	}
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
-	public void addOutputNode(OutputNodeSpecification outputNode) {
-		outputNodes.add(outputNode);
-	}
+    public ParentSpecification getParent() {
+        return parent;
+    }
 
-	public void setGitRepo(String repo) {
-		this.gitRepo = repo;
-	}
+    @Override
+    public List<BadgeSpecification> getBadges() {
+        return badges;
+    }
 
-	@Override
-	public List<InputNodeSpecification> getInputs() {
-		return unmodifiable(inputNodes);
-	}
+    @Override
+    public void setBadges(List<BadgeSpecification> badges) {
+        this.badges = badges;
+    }
 
-	@Override
-	public List<OutputNodeSpecification> getOutputs() {
-		return unmodifiable(outputNodes);
-	}
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
-	@Override
-	public String getFormatVersion() {
-		return formatVersion;
-	}
+    @Override
+    public void setType(String type) {
+        this.type = type;
+    }
 
-	@Override
-	public String getLanguage() {
-		return language;
-	}
+    @Override
+    public String getVersion() {
+        return version;
+    }
 
-	@Override
-	public String getFramework() {
-		return framework;
-	}
+    @Override
+    public String getType() {
+        return type;
+    }
 
-	@Deprecated
-	@Override
-	public Map<String, Object> getTrainingKwargs() {
-		return trainingKwargs;
-	}
+    public void setParent(ParentSpecification parent) {
+        this.parent = parent;
+    }
 
-	@Override
-	public String getName() {
-		return name;
-	}
+    public List<String> getCovers() {
+        return covers;
+    }
 
-	@Override
-	public String getDescription() {
-		return description;
-	}
+    public void setCovers(List<String> covers) {
+        this.covers = covers;
+    }
 
-	@Override
-	public List<CitationSpecification> getCitations() {
-		return unmodifiable(citations);
-	}
+    public String getDependencies() {
+        return dependencies;
+    }
 
-	@Override
-	public List<WeightsSpecification> getWeights() {
-		return unmodifiable(weights);
-	}
+    public void setDependencies(String dependencies) {
+        this.dependencies = dependencies;
+    }
 
-	@Override
-	public List<String> getAuthors() {
-		return unmodifiable(authors);
-	}
+    public String getPackagedBy() {
+        return packaged_by;
+    }
 
-	@Override
-	public String getDocumentation() {
-		return documentation;
-	}
+    public void setPackaged_by(String packaged_by) {
+        this.packaged_by = packaged_by;
+    }
 
-	@Override
-	public List<String> getTags() {
-		return unmodifiable(tags);
-	}
+    public void addCitation(CitationSpecification citation) {
+        citations.add(citation);
+    }
 
-	@Override
-	public String getLicense() {
-		return license;
-	}
+    public void addAuthor(AuthorSpecification author) {
+        authors.add(author);
+    }
 
-	@Override
-	public String getSource() {
-		return source;
-	}
+    public void addInputNode(InputNodeSpecification inputNode) {
+        inputNodes.add(inputNode);
+    }
 
-	@Override
-	public String getGitRepo() {
-		return gitRepo;
-	}
+    public void addOutputNode(OutputNodeSpecification outputNode) {
+        outputNodes.add(outputNode);
+    }
 
-	@Override
-	public Map<String, String> getAttachments() {
-		return unmodifiable(attachments);
-	}
+    @Override
+    public List<InputNodeSpecification> getInputs() {
+        return unmodifiable(inputNodes);
+    }
 
-	@Override
-	public List<String> getTestInputs() {
-		return unmodifiable(testInputs);
-	}
+    public void setInputs(List<InputNodeSpecification> inputs) {
+        this.inputNodes = inputs;
+    }
 
-	public void setTestInputs(List<String> testInputs) {
-		this.testInputs = testInputs;
-	}
+    @Override
+    public List<OutputNodeSpecification> getOutputs() {
+        return unmodifiable(outputNodes);
+    }
 
-	@Override
-	public List<String> getTestOutputs() {
-		return unmodifiable(testOutputs);
-	}
+    public void setOutputs(List<OutputNodeSpecification> outputs) {
+        this.outputNodes = outputs;
+    }
 
-	public void setTestOutputs(List<String> testOutputs) {
-		this.testOutputs = testOutputs;
-	}
+    @Override
+    public String getFormatVersion() {
+        return formatVersion;
+    }
 
-	@Override
-	public List<String> getSampleInputs() {
-		return unmodifiable(sampleInputs);
-	}
+    public void setFormatVersion(String version) {
+        formatVersion = version;
+    }
 
-	@Override
-	public void setSampleInputs(List<String> sampleInputs) {
-		this.sampleInputs = sampleInputs;
-	}
+    @Override
+    public String getLanguage() {
+        return language;
+    }
 
-	@Override
-	public List<String> getSampleOutputs() {
-		return unmodifiable(sampleOutputs);
-	}
+    public void setLanguage(String language) {
+        this.language = language;
+    }
 
-	@Override
-	public void setSampleOutputs(List<String> sampleOutputs) {
-		this.sampleOutputs = sampleOutputs;
-	}
+    @Override
+    public String getFramework() {
+        return framework;
+    }
 
-	public void setFramework(String framework) {
-		this.framework = framework;
-	}
+    public void setFramework(String framework) {
+        this.framework = framework;
+    }
 
-	public void setFormatVersion(String version) {
-		formatVersion = version;
-	}
+    @Deprecated
+    @Override
+    public Map<String, Object> getTrainingKwargs() {
+        return trainingKwargs;
+    }
 
-	@Override
-	public String getTimestamp() {
-		return timestamp;
-	}
+    @Deprecated
+    public void setTrainingKwargs(Map<String, Object> trainingKwargs) {
+        this.trainingKwargs = trainingKwargs;
+    }
 
-	@Override
-	public String getExecutionModel() {
-		return executionModel;
-	}
+    @Override
+    public String getName() {
+        return name;
+    }
 
-	public void setTimestamp(String timestamp) {
-		this.timestamp = timestamp;
-	}
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setLanguage(String language) {
-		this.language = language;
-	}
+    @Override
+    public String getDescription() {
+        return description;
+    }
 
-	public void read(ModelSpecification spec) {
-		setName(spec.getName());
-		setDocumentation(spec.getDocumentation());
-		setDescription(spec.getDescription());
-		setAuthors(spec.getAuthors());
-		setTestInputs(spec.getTestInputs());
-		setTestOutputs(spec.getTestOutputs());
-		setSampleInputs(spec.getSampleInputs());
-		setSampleOutputs(spec.getSampleOutputs());
-		setFramework(spec.getFramework());
-		setLanguage(spec.getLanguage());
-		setLicense(spec.getLicense());
-		setSource(spec.getSource());
-		setTags(spec.getTags());
-		setTrainingKwargs(spec.getTrainingKwargs());
-		setTrainingSource(spec.getTrainingSource());
-		setGitRepo(spec.getGitRepo());
-		setInputs(spec.getInputs());
-		setOutputs(spec.getOutputs());
-		setAttachments(spec.getAttachments());
-		setWeights(spec.getWeights());
-	}
+    @Override
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-	public void setWeights(List<WeightsSpecification> weights) {
-		this.weights = weights;
-	}
+    @Override
+    public List<CitationSpecification> getCitations() {
+        return unmodifiable(citations);
+    }
 
-	public void setAttachments(Map<String, String> attachments) {
-		this.attachments = attachments;
-	}
+    public void setCitations(List<CitationSpecification> citations) {
+        this.citations = citations;
+    }
 
-	public void setOutputs(List<OutputNodeSpecification> outputs) {
-		this.outputNodes = outputs;
-	}
+    @Override
+    public Map<String, WeightsSpecification> getWeights() {
+        return unmodifiable(weights);
+    }
 
-	public void setInputs(List<InputNodeSpecification> inputs) {
-		this.inputNodes = inputs;
-	}
+    public void setWeights(Map<String, WeightsSpecification> weights) {
+        this.weights = weights;
+    }
 
-	private static <T> List<T> unmodifiable(List<T> list) {
-		return list != null? Collections.unmodifiableList(list) : null;
-	}
+    @Override
+    public List<AuthorSpecification> getAuthors() {
+        return unmodifiable(authors);
+    }
 
-	private static <T, S> Map<T, S> unmodifiable(Map<T, S> map) {
-		return map != null? Collections.unmodifiableMap(map) : null;
-	}
+    @Override
+    public void setAuthors(List<AuthorSpecification> modelAuthors) {
+        this.authors = modelAuthors;
+    }
 
-	@Deprecated
-	@Override
-	public String getTrainingSource() {
-		return getSource();
-	}
+    @Override
+    public String getDocumentation() {
+        return documentation;
+    }
 
-	@Override
-	public Map<String, Object> getConfig() {
-		return config;
-	}
+    public void setDocumentation(String documentation) {
+        this.documentation = documentation;
+    }
 
-	@Deprecated
-	public void setTrainingSource(String trainingSource) {
-		setSource(trainingSource);
-	}
+    @Override
+    public List<String> getTags() {
+        return unmodifiable(tags);
+    }
 
-	@Deprecated
-	public void setTrainingKwargs(Map<String, Object> trainingKwargs) {
-		this.trainingKwargs = trainingKwargs;
-	}
+    @Override
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
 
-	public void addWeights(WeightsSpecification weights) {
-		this.weights.add(weights);
-	}
+    @Override
+    public String getLicense() {
+        return license;
+    }
 
-	public void setConfig(Map<String, Object> config) {
-		this.config = config;
-	}
+    public void setLicense(String license) {
+        this.license = license;
+    }
 
-	public void setExecutionModel(String executionModel) {
-		this.executionModel = executionModel;
-	}
+    @Override
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    @Override
+    public String getGitRepo() {
+        return gitRepo;
+    }
+
+    public void setGitRepo(String repo) {
+        this.gitRepo = repo;
+    }
+
+    @Override
+    public Map<String, String> getAttachments() {
+        return unmodifiable(attachments);
+    }
+
+    public void setAttachments(Map<String, String> attachments) {
+        this.attachments = attachments;
+    }
+
+    @Override
+    public List<String> getTestInputs() {
+        return unmodifiable(testInputs);
+    }
+
+    public void setTestInputs(List<String> testInputs) {
+        this.testInputs = testInputs;
+    }
+
+    @Override
+    public List<String> getTestOutputs() {
+        return unmodifiable(testOutputs);
+    }
+
+    public void setTestOutputs(List<String> testOutputs) {
+        this.testOutputs = testOutputs;
+    }
+
+    @Override
+    public List<String> getSampleInputs() {
+        return unmodifiable(sampleInputs);
+    }
+
+    @Override
+    public void setSampleInputs(List<String> sampleInputs) {
+        this.sampleInputs = sampleInputs;
+    }
+
+    @Override
+    public List<String> getSampleOutputs() {
+        return unmodifiable(sampleOutputs);
+    }
+
+    @Override
+    public void setSampleOutputs(List<String> sampleOutputs) {
+        this.sampleOutputs = sampleOutputs;
+    }
+
+    @Override
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public String getExecutionModel() {
+        return executionModel;
+    }
+
+    public void setExecutionModel(String executionModel) {
+        this.executionModel = executionModel;
+    }
+
+    public void read(ModelSpecification spec) {
+        setName(spec.getName());
+        setDocumentation(spec.getDocumentation());
+        setDescription(spec.getDescription());
+        setAuthors(spec.getAuthors());
+        setTestInputs(spec.getTestInputs());
+        setTestOutputs(spec.getTestOutputs());
+        setSampleInputs(spec.getSampleInputs());
+        setSampleOutputs(spec.getSampleOutputs());
+        setFramework(spec.getFramework());
+        setLanguage(spec.getLanguage());
+        setLicense(spec.getLicense());
+        setSource(spec.getSource());
+        setTags(spec.getTags());
+        setTrainingKwargs(spec.getTrainingKwargs());
+        setTrainingSource(spec.getTrainingSource());
+        setGitRepo(spec.getGitRepo());
+        setInputs(spec.getInputs());
+        setOutputs(spec.getOutputs());
+        setAttachments(spec.getAttachments());
+        setWeights(spec.getWeights());
+    }
+
+    @Deprecated
+    @Override
+    public String getTrainingSource() {
+        return getSource();
+    }
+
+    @Deprecated
+    public void setTrainingSource(String trainingSource) {
+        setSource(trainingSource);
+    }
+
+    @Override
+    public Map<String, Object> getConfig() {
+        return config;
+    }
+
+    public void setConfig(Map<String, Object> config) {
+        this.config = config;
+    }
+
+    public void addWeights(String name, WeightsSpecification weights) {
+        this.weights.put(name,weights);
+    }
 }

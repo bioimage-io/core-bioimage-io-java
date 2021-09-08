@@ -34,6 +34,7 @@ public abstract class DefaultNodeSpecification implements NodeSpecification {
 
 	private String name;
 	private String axes;
+	private String description;
 	private String dataType;
 	private List<?> dataRange;
 	private List<Integer> halo;
@@ -86,6 +87,16 @@ public abstract class DefaultNodeSpecification implements NodeSpecification {
 	@Override
 	public void setHalo(List<Integer> halo) {
 		this.halo = halo;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }
