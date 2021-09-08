@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,6 +34,7 @@ public abstract class DefaultNodeSpecification implements NodeSpecification {
 
 	private String name;
 	private String axes;
+	private String description;
 	private String dataType;
 	private List<?> dataRange;
 	private List<Integer> halo;
@@ -86,6 +87,16 @@ public abstract class DefaultNodeSpecification implements NodeSpecification {
 	@Override
 	public void setHalo(List<Integer> halo) {
 		this.halo = halo;
+	}
+
+	@Override
+	public String getDescription() {
+		return description;
+	}
+
+	@Override
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 }

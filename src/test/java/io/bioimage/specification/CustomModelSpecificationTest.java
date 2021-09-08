@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,6 +28,8 @@
  */
 package io.bioimage.specification;
 
+import io.bioimage.specification.io.SpecificationReader;
+import io.bioimage.specification.io.SpecificationWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,15 +63,15 @@ public class CustomModelSpecificationTest {
 		checkExampleValues(specification);
 
 		// write spec
-		specification.write(dir);
-		File modelFile = new File(dir.getAbsolutePath(), specification.getModelFileName());
+		SpecificationWriter.write(specification, dir);
+		File modelFile = new File(dir.getAbsolutePath(), SpecificationWriter.getModelFileName());
 		assertTrue(modelFile.exists());
 		String content = FileUtils.readFileToString(modelFile, StandardCharsets.UTF_8);
 		System.out.println(content);
 
 		// read spec
 		CustomSpecification newSpec = new CustomSpecification();
-		assertTrue(newSpec.readFromDirectory(dir));
+		assertTrue(SpecificationReader.readFromDirectory(dir, newSpec));
 
 		// check values
 		checkExampleValues(newSpec);

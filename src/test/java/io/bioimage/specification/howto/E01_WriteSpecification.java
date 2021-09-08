@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -28,14 +28,8 @@
  */
 package io.bioimage.specification.howto;
 
-import io.bioimage.specification.CitationSpecification;
-import io.bioimage.specification.DefaultCitationSpecification;
-import io.bioimage.specification.DefaultInputNodeSpecification;
-import io.bioimage.specification.DefaultModelSpecification;
-import io.bioimage.specification.DefaultOutputNodeSpecification;
-import io.bioimage.specification.InputNodeSpecification;
-import io.bioimage.specification.ModelSpecification;
-import io.bioimage.specification.OutputNodeSpecification;
+import io.bioimage.specification.*;
+import io.bioimage.specification.io.SpecificationWriter;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,7 +55,11 @@ public class E01_WriteSpecification {
 
 		// meta data
 		specification.setTags(Arrays.asList("segmentation", "imagej"));
-		specification.setAuthors(Arrays.asList("Maya", "Selma"));
+		AuthorSpecification author1 = new DefaultAuthorSpecification();
+		author1.setName("Maya");
+		AuthorSpecification author2 = new DefaultAuthorSpecification();
+		author1.setName("Selma");
+		specification.setAuthors(Arrays.asList(author1, author2));
 		specification.setLicense("bsd");
 		specification.setName("OurAwesomeModel");
 		CitationSpecification citation = new DefaultCitationSpecification();
@@ -95,10 +93,10 @@ public class E01_WriteSpecification {
 		File destination = folder.getRoot();
 
 		// save model specification
-		specification.write(destination);
+		SpecificationWriter.write(specification, destination);
 
 		// print file content to console
-		File modelSpecFile = new File(destination, specification.getModelFileName());
+		File modelSpecFile = new File(destination, SpecificationWriter.getModelFileName());
 		System.out.println(FileUtils.readFileToString(modelSpecFile, StandardCharsets.UTF_8));
 
 	}

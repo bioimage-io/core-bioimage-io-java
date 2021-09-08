@@ -26,43 +26,32 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package io.bioimage.specification.howto;
+package io.bioimage.specification.transformation;
 
-import io.bioimage.specification.CustomSpecification;
-import io.bioimage.specification.io.SpecificationReader;
-import io.bioimage.specification.io.SpecificationWriter;
-import org.junit.Test;
+public class ClipTransformation extends DefaultImageTransformation {
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+	public static final String name = "clip";
+	private Number min;
+	private Number max;
 
-public class E03_CustomSpecification {
-
-	@Test
-	public void run() throws IOException {
-
-		// create custom specification
-		CustomSpecification specification = new CustomSpecification();
-
-		// set custom variable
-		specification.setSecret("birds are dinosaurs");
-
-		Path file = Files.createTempFile("myspec", ".yaml");
-		SpecificationWriter.write(specification, file);
-
-		// read the specification again from disk
-		specification = new CustomSpecification();
-		SpecificationReader.read(file, specification);
-
-		// access custom variable
-		System.out.println(specification.getSecret());
-
-		file.toFile().delete();
+	public Number getMin() {
+		return min;
 	}
 
-	public static void main(String... args) throws IOException {
-		new E03_CustomSpecification().run();
+	public void setMin(Number min) {
+		this.min = min;
 	}
 
+	public Number getMax() {
+		return max;
+	}
+
+	public void setMax(Number max) {
+		this.max = max;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
 }

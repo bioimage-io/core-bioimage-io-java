@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,6 +29,8 @@
 package io.bioimage.specification.howto;
 
 import io.bioimage.specification.DefaultModelSpecification;
+import io.bioimage.specification.io.SpecificationReader;
+import io.bioimage.specification.io.SpecificationWriter;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -45,10 +47,10 @@ public class E02_ReadSpecification {
 		DefaultModelSpecification specification = new DefaultModelSpecification();
 
 		// read specification
-		specification.read(specificationPath);
+		SpecificationReader.read(specificationPath, specification);
 
 		// access specification
-		System.out.println(specification.write());
+		System.out.println(SpecificationWriter.write(specification));
 
 	}
 

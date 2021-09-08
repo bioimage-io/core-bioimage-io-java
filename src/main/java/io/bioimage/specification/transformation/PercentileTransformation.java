@@ -26,43 +26,34 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package io.bioimage.specification.howto;
+package io.bioimage.specification.transformation;
 
-import io.bioimage.specification.CustomSpecification;
-import io.bioimage.specification.io.SpecificationReader;
-import io.bioimage.specification.io.SpecificationWriter;
-import org.junit.Test;
+import io.bioimage.specification.transformation.DefaultImageTransformation;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+public class PercentileTransformation extends DefaultImageTransformation {
 
-public class E03_CustomSpecification {
+	public static final String name = "percentile";
+	private Number minPercentile;
+	private Number maxPercentile;
 
-	@Test
-	public void run() throws IOException {
-
-		// create custom specification
-		CustomSpecification specification = new CustomSpecification();
-
-		// set custom variable
-		specification.setSecret("birds are dinosaurs");
-
-		Path file = Files.createTempFile("myspec", ".yaml");
-		SpecificationWriter.write(specification, file);
-
-		// read the specification again from disk
-		specification = new CustomSpecification();
-		SpecificationReader.read(file, specification);
-
-		// access custom variable
-		System.out.println(specification.getSecret());
-
-		file.toFile().delete();
+	public Number getMinPercentile() {
+		return minPercentile;
 	}
 
-	public static void main(String... args) throws IOException {
-		new E03_CustomSpecification().run();
+	public void setMinPercentile(Number minPercentile) {
+		this.minPercentile = minPercentile;
 	}
 
+	public Number getMaxPercentile() {
+		return maxPercentile;
+	}
+
+	public void setMaxPercentile(Number maxPercentile) {
+		this.maxPercentile = maxPercentile;
+	}
+
+	@Override
+	public String getName() {
+		return name;
+	}
 }

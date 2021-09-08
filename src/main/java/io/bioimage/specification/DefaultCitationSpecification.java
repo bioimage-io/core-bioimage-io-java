@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,6 +37,8 @@ public class DefaultCitationSpecification implements CitationSpecification {
 
 	private String doiText;
 
+	private String url;
+
 	@Override
 	public void setCitationText(String citationText) {
 		this.citationText = citationText;
@@ -45,6 +47,11 @@ public class DefaultCitationSpecification implements CitationSpecification {
 	@Override
 	public void setDOIText(String doiText) {
 		this.doiText = doiText;
+	}
+
+	@Override
+	public void setUrl(String url) {
+		this.url = url;
 	}
 
 	@Override
@@ -58,12 +65,20 @@ public class DefaultCitationSpecification implements CitationSpecification {
 	}
 
 	@Override
+	public String getUrl() {
+		return url;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(citationText, doiText, url);
+	}
+
+	@Override
 	public boolean equals(Object o) {
-		if (DefaultCitationSpecification.class.isAssignableFrom(o.getClass())) {
-			DefaultCitationSpecification other = (DefaultCitationSpecification) o;
-			return Objects.equals(this.getCitationText(), other.getCitationText())
-					&& Objects.equals(this.getDoiText(), other.getDoiText());
-		}
-		return super.equals(o);
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		DefaultCitationSpecification that = (DefaultCitationSpecification) o;
+		return citationText.equals(that.citationText) && Objects.equals(doiText, that.doiText) && Objects.equals(url, that.url);
 	}
 }

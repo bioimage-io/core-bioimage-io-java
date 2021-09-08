@@ -1,8 +1,8 @@
 /*-
  * #%L
- * This is the bioimage.io modelzoo library for ImageJ.
+ * Java implementation of the bioimage.io model specification.
  * %%
- * Copyright (C) 2019 - 2020 Center for Systems Biology Dresden
+ * Copyright (C) 2020 Center for Systems Biology Dresden
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -49,24 +49,6 @@ public interface ModelSpecification {
 
 	List<String> getSampleOutputs();
 
-	boolean readFromZIP(File zippedModel);
-
-	boolean readFromDirectory(File directory) throws IOException;
-
-	boolean read(String modelSpecificationFile) throws IOException;
-
-	boolean read(Path specPath) throws IOException;
-
-	boolean read(File modelSpecificationFile) throws IOException;
-
-	boolean read(InputStream in) throws IOException;
-
-	void write(String targetDirectory) throws IOException;
-
-	void write(File targetDirectory) throws IOException;
-
-	void write(Path specPath) throws IOException;
-
 	List<InputNodeSpecification> getInputs();
 
 	List<OutputNodeSpecification> getOutputs();
@@ -83,9 +65,9 @@ public interface ModelSpecification {
 
 	List<CitationSpecification> getCitations();
 
-	List<WeightsSpecification> getWeights();
+	Map<String, WeightsSpecification> getWeights();
 
-	List<String> getAuthors();
+	List<AuthorSpecification> getAuthors();
 
 	String getDocumentation();
 
@@ -95,19 +77,51 @@ public interface ModelSpecification {
 
 	String getSource();
 
-	String getModelFileName();
-
 	String getGitRepo();
 
-	Map<String, Object> getAttachments();
+	Map<String, String> getAttachments();
 
 	String getTimestamp();
 
-	void updateToNewestVersion();
+	String getExecutionModel();
 
 	@Deprecated
 	Map<String, Object> getTrainingKwargs();
 
 	@Deprecated
 	String getTrainingSource();
+
+	Map<String, Object> getConfig();
+
+	void setSampleInputs(List<String> inNames);
+
+	void setSampleOutputs(List<String> outNames);
+
+	void setName(String name);
+
+	void setAuthors(List<AuthorSpecification> authors);
+
+	void setTags(List<String> tags);
+
+	void setDescription(String description);
+
+    String getDependencies();
+
+	List<String> getCovers();
+
+	String getHash();
+
+	ParentSpecification getParent();
+
+	List<BadgeSpecification> getBadges();
+
+	void setBadges(List<BadgeSpecification> badges);
+
+	void setVersion(String s);
+
+	void setType(String s);
+
+	String getVersion();
+
+	String getType();
 }

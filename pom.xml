@@ -11,10 +11,10 @@
 
 	<groupId>io.bioimage</groupId>
 	<artifactId>java-bioimage-io</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.3.6</version>
 
 	<name>bioimage.io Java specification</name>
-	<description>This is the Java implementation of the bioimage.io model specification.</description>
+	<description>Java implementation of the bioimage.io model specification.</description>
 	<url>https://bioimage.io/</url>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
