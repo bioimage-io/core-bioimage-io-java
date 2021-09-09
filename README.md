@@ -1,4 +1,4 @@
-[![](https://travis-ci.com/bioimage-io/java-bioimage-io.svg?branch=master)](https://travis-ci.com/bioimage-io/java-bioimage-io)
+[![](https://github.com/bioimage-io/java-bioimage-io/actions/workflows/build-main.yml/badge.svg)](https://github.com/bioimage-io/java-bioimage-io/actions/workflows/build-main.yml)
 
 # bioimage.io specification implementation for Java
 
