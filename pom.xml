@@ -69,8 +69,8 @@
 		<url>https://github.com/bioimage-io/java-bioimage-io/issues</url>
 	</issueManagement>
 	<ciManagement>
-		<system>Travis CI</system>
-		<url>https://travis-ci.com/bioimage-io/java-bioimage-io</url>
+		<system>GitHub Actions</system>
+		<url>https://github.com/bioimage-io/java-bioimage-io/actions</url>
 	</ciManagement>
 
 	<properties>
