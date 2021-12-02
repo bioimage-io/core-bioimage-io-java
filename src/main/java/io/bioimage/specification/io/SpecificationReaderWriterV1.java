@@ -115,8 +115,6 @@ class SpecificationReaderWriterV1 {
         specification.setTags((List<String>) obj.get(idTags));
         specification.setLicense((String) obj.get(idLicense));
         specification.setFormatVersion((String) obj.get(idFormatVersion));
-        specification.setLanguage((String) obj.get(idLanguage));
-        specification.setFramework((String) obj.get(idFramework));
         specification.setSource((String) obj.get(idSource));
         specification.setSampleInputs(Collections.singletonList((String) obj.get(idTestInput)));
         specification.setSampleOutputs(Collections.singletonList((String) obj.get(idTestOutput)));
@@ -231,8 +229,6 @@ class SpecificationReaderWriterV1 {
         data.put(idDocumentation, specification.getDocumentation());
         data.put(idTags, specification.getTags());
         data.put(idLicense, specification.getLicense());
-        data.put(idLanguage, specification.getLanguage());
-        data.put(idFramework, specification.getFramework());
         data.put(idSource, specification.getSource());
         if (specification.getSampleInputs() != null && specification.getSampleInputs().size() > 0) {
             data.put(idTestInput, specification.getSampleInputs().get(0));

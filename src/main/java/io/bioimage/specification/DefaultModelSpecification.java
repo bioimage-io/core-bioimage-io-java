@@ -36,9 +36,7 @@ import java.util.*;
  */
 public class DefaultModelSpecification implements ModelSpecification {
 
-    final static String modelZooSpecificationVersion = "0.3.2";
-    private String language = "java";
-    private String framework;
+    final static String modelZooSpecificationVersion = "0.4.0";
     private String formatVersion = modelZooSpecificationVersion;
     private List<String> sampleInputs = new ArrayList<>();
 
@@ -48,6 +46,7 @@ public class DefaultModelSpecification implements ModelSpecification {
     private String name;
     private String description;
     private List<CitationSpecification> citations = new ArrayList<>();
+    private List<BadgeSpecification> badges = new ArrayList<>();
     private List<AuthorSpecification> authors = new ArrayList<>();
     private String documentation;
     private List<String> tags;
@@ -66,10 +65,14 @@ public class DefaultModelSpecification implements ModelSpecification {
     private ParentSpecification parent;
     private List<String> covers = new ArrayList<>();
     private String dependencies;
-    private String packaged_by;
-    private List<BadgeSpecification> badges;
+    private List<AuthorSpecification> packaged_by;
     private String version;
     private String type;
+    private String downloadUrl;
+    private String icon;
+    private List<String> links = new ArrayList<>();
+    private List<AuthorSpecification> maintainers = new ArrayList<>();
+    private String runMode;
 
     public static String getModelZooSpecificationVersion() {
         return modelZooSpecificationVersion;
@@ -161,11 +164,11 @@ public class DefaultModelSpecification implements ModelSpecification {
         this.dependencies = dependencies;
     }
 
-    public String getPackagedBy() {
+    public List<AuthorSpecification> getPackagedBy() {
         return packaged_by;
     }
 
-    public void setPackaged_by(String packaged_by) {
+    public void setPackaged_by(List<AuthorSpecification> packaged_by) {
         this.packaged_by = packaged_by;
     }
 
@@ -175,6 +178,10 @@ public class DefaultModelSpecification implements ModelSpecification {
 
     public void addAuthor(AuthorSpecification author) {
         authors.add(author);
+    }
+
+    public void addMaintainer(AuthorSpecification maintainer) {
+        maintainers.add(maintainer);
     }
 
     public void addInputNode(InputNodeSpecification inputNode) {
@@ -210,24 +217,6 @@ public class DefaultModelSpecification implements ModelSpecification {
 
     public void setFormatVersion(String version) {
         formatVersion = version;
-    }
-
-    @Override
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
-    }
-
-    @Override
-    public String getFramework() {
-        return framework;
-    }
-
-    public void setFramework(String framework) {
-        this.framework = framework;
     }
 
     @Deprecated
@@ -409,8 +398,6 @@ public class DefaultModelSpecification implements ModelSpecification {
         setTestOutputs(spec.getTestOutputs());
         setSampleInputs(spec.getSampleInputs());
         setSampleOutputs(spec.getSampleOutputs());
-        setFramework(spec.getFramework());
-        setLanguage(spec.getLanguage());
         setLicense(spec.getLicense());
         setSource(spec.getSource());
         setTags(spec.getTags());
@@ -421,6 +408,9 @@ public class DefaultModelSpecification implements ModelSpecification {
         setOutputs(spec.getOutputs());
         setAttachments(spec.getAttachments());
         setWeights(spec.getWeights());
+        setParent(spec.getParent());
+        setDependencies(spec.getDependencies());
+        setConfig(spec.getConfig());
     }
 
     @Deprecated
@@ -445,5 +435,57 @@ public class DefaultModelSpecification implements ModelSpecification {
 
     public void addWeights(String name, WeightsSpecification weights) {
         this.weights.put(name,weights);
+    }
+
+    public List<AuthorSpecification> getPackaged_by() {
+        return packaged_by;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public String getIcon() {
+        return icon;
+    }
+
+    public void setIcon(String icon) {
+        this.icon = icon;
+    }
+
+    public List<String> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<String> links) {
+        this.links = links;
+    }
+
+    public List<AuthorSpecification> getMaintainers() {
+        return maintainers;
+    }
+
+    public void setMaintainers(List<AuthorSpecification> maintainers) {
+        this.maintainers = maintainers;
+    }
+
+    public String getRunMode() {
+        return runMode;
+    }
+
+    public void setRunMode(String runMode) {
+        this.runMode = runMode;
+    }
+
+    public void addBadge(BadgeSpecification badge) {
+        badges.add(badge);
+    }
+
+    public void addPackagedBy(AuthorSpecification packager) {
+        this.packaged_by.add(packager);
     }
 }

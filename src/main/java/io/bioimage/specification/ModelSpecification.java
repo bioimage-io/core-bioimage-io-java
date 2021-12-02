@@ -55,10 +55,6 @@ public interface ModelSpecification {
 
 	String getFormatVersion();
 
-	String getLanguage();
-
-	String getFramework();
-
 	String getName();
 
 	String getDescription();
@@ -124,4 +120,16 @@ public interface ModelSpecification {
 	String getVersion();
 
 	String getType();
+
+	List<AuthorSpecification> getMaintainers();
+
+	String getRunMode();
+
+	String getIcon();
+
+	List<String> getLinks();
+
+	String getDownloadUrl();
+
+	List<AuthorSpecification> getPackagedBy();
 }

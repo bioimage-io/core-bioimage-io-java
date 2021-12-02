@@ -37,7 +37,7 @@ import java.util.*;
 
 import static io.bioimage.specification.util.SpecificationUtil.asMap;
 
-class SpecificationReaderWriterV3 {
+class SpecificationReaderWriterV4 {
 
     private final static String idName = "name";
     private final static String idDescription = "description";
@@ -47,11 +47,8 @@ class SpecificationReaderWriterV3 {
     private final static String idTags = "tags";
     private final static String idLicense = "license";
     private final static String idFormatVersion = "format_version";
-    private final static String idLanguage = "language";
     private final static String idTimestamp = "timestamp";
-    private final static String idFramework = "framework";
     private final static String idSource = "source";
-    private final static String idHash = "sha256";
     private final static String idGitRepo = "git_repo";
     private final static String idAttachments = "attachments";
     private final static String idTestInputs = "test_inputs";
@@ -72,6 +69,12 @@ class SpecificationReaderWriterV3 {
     private final static String idParent = "parent";
     private final static String idParentUri = "uri";
     private final static String idParentHash = "sha256";
+    private final static String idDownloadUrl = "download_url";
+    private final static String idBadges = "badges";
+    private final static String idIcon = "icon";
+    private final static String idLinks = "links";
+    private final static String idMaintainers = "maintainers";
+    private final static String idRunMode = "run_mode";
 
     private final static String idNodeName = "name";
     private final static String idNodeAxes = "axes";
@@ -80,6 +83,7 @@ class SpecificationReaderWriterV3 {
     private final static String idNodeDataRange = "data_range";
     private final static String idNodeShape = "shape";
     private final static String idNodeHalo = "halo";
+
 
     private final static String idNodeShapeMin = "min";
     private final static String idNodeShapeStep = "step";
@@ -96,6 +100,12 @@ class SpecificationReaderWriterV3 {
     private final static String idAuthorName = "name";
     private final static String idAuthorAffiliation = "affiliation";
     private final static String idAuthorOrcid = "orcid";
+    private final static String idAuthorEmail = "email";
+    private final static String idAuthorGithubUser = "github_user";
+
+    private final static String idBadgeIcon = "icon";
+    private final static String idBadgeLabel = "label";
+    private final static String idBadgeUrl = "url";
 
     private final static String idTransformationName = "name";
     private final static String idTransformationKwargs = "kwargs";
@@ -131,7 +141,6 @@ class SpecificationReaderWriterV3 {
 
     private final static String idConfig = "config";
 
-    private final static String idExecutionModel = "execution_model";
 
     static DefaultModelSpecification read(DefaultModelSpecification specification, Map<String, Object> obj) throws IOException {
         readMeta(specification, obj);
@@ -164,12 +173,6 @@ class SpecificationReaderWriterV3 {
                 for(Object author : authors){
                     specification.addAuthor(readAuthor((Map) author));
                 }
-            }else if(!authors.isEmpty() && String.class.isAssignableFrom(authors.get(0).getClass())){
-                for(Object author : authors){
-                    AuthorSpecification authSpec = new DefaultAuthorSpecification();
-                    authSpec.setName((String) author);
-                    specification.addAuthor(authSpec);
-                }
             }
         }
         Object attachments = obj.get(idAttachments);
@@ -178,13 +181,36 @@ class SpecificationReaderWriterV3 {
                 specification.setAttachments((Map<String, String>) attachments);
             }
         }
+        List<Object> maintainers = (List<Object>) obj.get(idMaintainers);
+        if (maintainers != null && List.class.isAssignableFrom(maintainers.getClass())) {
+            if(!maintainers.isEmpty() && Map.class.isAssignableFrom(maintainers.get(0).getClass())){
+                for(Object maintainer : maintainers){
+                    specification.addMaintainer(readAuthor((Map) maintainer));
+                }
+            }
+        }
+        List<Object> badges = (List<Object>) obj.get(idBadges);
+        if (badges != null && List.class.isAssignableFrom(badges.getClass())) {
+            if(!badges.isEmpty() && Map.class.isAssignableFrom(badges.get(0).getClass())){
+                for(Object badge : badges){
+                    specification.addBadge(readBadge((Map) badge));
+                }
+            }
+        }
+        specification.setPackaged_by((List<AuthorSpecification>) obj.get(idPackagedBy));
+        List<Object> packaged_by = (List<Object>) obj.get(idMaintainers);
+        if (packaged_by != null && List.class.isAssignableFrom(packaged_by.getClass())) {
+            if(!packaged_by.isEmpty() && Map.class.isAssignableFrom(packaged_by.get(0).getClass())){
+                for(Object packager : packaged_by){
+                    specification.addPackagedBy(readAuthor((Map) packager));
+                }
+            }
+        }
         specification.setDocumentation((String) obj.get(idDocumentation));
         specification.setTags((List<String>) obj.get(idTags));
         specification.setLicense((String) obj.get(idLicense));
         specification.setFormatVersion((String) obj.get(idFormatVersion));
-        specification.setExecutionModel((String) obj.get(idExecutionModel));
         specification.setSource((String) parseSource(obj));
-        specification.setHash((String) obj.get(idHash));
         specification.setGitRepo((String) obj.get(idGitRepo));
         specification.setTestInputs((List<String>) obj.get(idTestInputs));
         specification.setTestOutputs((List<String>) obj.get(idTestOutputs));
@@ -193,6 +219,19 @@ class SpecificationReaderWriterV3 {
         specification.setCovers((List<String>) obj.get(idCovers));
         specification.setDependencies((String) obj.get(idDependencies));
         specification.setParent(parseParent(obj));
+        specification.setDownloadUrl((String) obj.get(idDownloadUrl));
+        specification.setBadges((List<BadgeSpecification>) obj.get(idBadges));
+        specification.setIcon((String) obj.get(idIcon));
+        specification.setLinks((List<String>) obj.get(idLinks));
+        specification.setRunMode((String) obj.get(idRunMode));
+    }
+
+    private static BadgeSpecification readBadge(Map data){
+        BadgeSpecification badge = new DefaultBadgeSpecification();
+        badge.setIcon((String) data.get(idBadgeIcon));
+        badge.setLabel((String) data.get(idBadgeLabel));
+        badge.setUrl((String) data.get(idBadgeUrl));
+        return badge;
     }
 
     private static AuthorSpecification readAuthor(Map data) {
@@ -200,6 +239,8 @@ class SpecificationReaderWriterV3 {
         author.setName((String) data.get(idAuthorName));
         author.setAffiliation((String) data.get(idAuthorAffiliation));
         author.setOrcId((String) data.get(idAuthorOrcid));
+        author.setEmail((String) data.get(idAuthorEmail));
+        author.setGithubUser((String) data.get(idAuthorGithubUser));
         return author;
     }
 
@@ -441,7 +482,6 @@ class SpecificationReaderWriterV3 {
         data.put(idTags, specification.getTags());
         data.put(idLicense, specification.getLicense());
         data.put(idSource, specification.getSource());
-        data.put(idExecutionModel, specification.getExecutionModel());
         data.put(idGitRepo, specification.getGitRepo());
         data.put(idAttachments, specification.getAttachments());
         data.put(idTestInputs, specification.getTestInputs());
@@ -450,10 +490,31 @@ class SpecificationReaderWriterV3 {
         data.put(idSampleOutputs, specification.getSampleOutputs());
         data.put(idDependencies, specification.getDependencies());
         data.put(idCovers, specification.getCovers());
-        data.put(idHash, specification.getHash());
         data.put(idParent, buildParent(specification));
         data.put(idVersion, specification.getVersion());
         data.put(idType, specification.getType());
+        data.put(idMaintainers, buildMaintainerList(specification));
+        data.put(idRunMode, specification.getRunMode());
+        data.put(idBadges, buildBadges(specification));
+        data.put(idIcon, specification.getIcon());
+        data.put(idLinks, specification.getLinks());
+        data.put(idDownloadUrl, specification.getDownloadUrl());
+        data.put(idPackagedBy, specification.getPackagedBy());
+    }
+
+    private static List<Map<String, Object>> buildBadges(ModelSpecification specification) {
+        List<Map<String, Object>> badges = new ArrayList<>();
+        if (specification.getBadges() == null) {
+            return null;
+        }
+        for(BadgeSpecification badgeSpec : specification.getBadges()){
+            Map<String, Object> badge = new HashMap<>();
+            badge.put(idBadgeLabel, badgeSpec.getLabel());
+            badge.put(idBadgeIcon, badgeSpec.getIcon());
+            badge.put(idBadgeUrl, badgeSpec.getUrl());
+            badges.add(badge);
+        }
+        return badges;
     }
 
     private static List<Map<String, Object>> buildAuthorList(ModelSpecification specification) {
@@ -466,6 +527,25 @@ class SpecificationReaderWriterV3 {
             author.put(idAuthorName, authorSpec.getName());
             author.put(idAuthorOrcid, authorSpec.getOrcId());
             author.put(idAuthorAffiliation, authorSpec.getAffiliation());
+            author.put(idAuthorEmail, authorSpec.getEmail());
+            author.put(idAuthorGithubUser, authorSpec.getGithubUser());
+            authors.add(author);
+        }
+        return authors;
+    }
+
+    private static List<Map<String, Object>> buildMaintainerList(ModelSpecification specification) {
+        List<Map<String, Object>> authors = new ArrayList<>();
+        if (specification.getMaintainers() == null) {
+            return null;
+        }
+        for(AuthorSpecification authorSpec : specification.getMaintainers()){
+            Map<String, Object> author = new HashMap<>();
+            author.put(idAuthorName, authorSpec.getName());
+            author.put(idAuthorOrcid, authorSpec.getOrcId());
+            author.put(idAuthorAffiliation, authorSpec.getAffiliation());
+            author.put(idAuthorEmail, authorSpec.getEmail());
+            author.put(idAuthorGithubUser, authorSpec.getGithubUser());
             authors.add(author);
         }
         return authors;
@@ -609,11 +689,11 @@ class SpecificationReaderWriterV3 {
 
     public static boolean canRead(Map<String, Object> obj) {
         String version = (String) obj.get(idFormatVersion);
-        return version.startsWith("0.3.");
+        return version.startsWith("0.4.");
     }
 
     static boolean canWrite(ModelSpecification specification) {
         String version = specification.getFormatVersion();
-        return version.startsWith("0.3.");
+        return version.startsWith("0.4.");
     }
 }

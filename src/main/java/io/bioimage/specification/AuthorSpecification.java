@@ -36,10 +36,18 @@ public interface AuthorSpecification {
 
     void setOrcId(String orcid);
 
+    void setEmail(String email);
+
+    void setGithubUser(String githubUser);
+
     String getName();
 
     String getAffiliation();
 
     String getOrcId();
+
+    String getEmail();
+
+    String getGithubUser();
 
 }
