@@ -29,7 +29,14 @@
 package io.bioimage.specification.io;
 
 import io.bioimage.specification.ModelSpecification;
+import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.introspector.Property;
+import org.yaml.snakeyaml.introspector.PropertyUtils;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +64,18 @@ public class SpecificationWriter {
 
 	public final static String dependenciesFileName = "dependencies.yaml";
 	final static String modelFileName = "rdf.yaml";
+	static Representer representer = new Representer() {
+		@Override
+		protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
+			// if value of property is null, ignore it.
+			if (propertyValue == null) {
+				return null;
+			}
+			else {
+				return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+			}
+		}
+	};
 
 	public static void write(ModelSpecification specification, String targetDirectory) throws IOException {
 		write(specification, new File(targetDirectory));
@@ -65,7 +84,7 @@ public class SpecificationWriter {
 	public static void write(ModelSpecification specification, File targetDirectory) throws IOException {
 		writeDependenciesFile(targetDirectory);
 		Map<String, Object> data = write(specification);
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(representer);
 		try (FileWriter writer = new FileWriter(new File(targetDirectory, modelFileName))) {
 			yaml.dump(data, writer);
 		}
@@ -73,7 +92,7 @@ public class SpecificationWriter {
 
 	public static void write(ModelSpecification specification, Path modelSpecificationPath) throws IOException {
 		Map<String, Object> data = write(specification);
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(representer);
 		try {
 			Files.delete(modelSpecificationPath);
 		} catch(IOException ignored) {}
@@ -83,6 +102,9 @@ public class SpecificationWriter {
 	}
 
 	public static Map<String, Object> write(ModelSpecification specification) {
+		if(SpecificationReaderWriterV4.canWrite(specification)) {
+			return SpecificationReaderWriterV4.write(specification);
+		}
 		if(SpecificationReaderWriterV3.canWrite(specification)) {
 			return SpecificationReaderWriterV3.write(specification);
 		}
@@ -109,7 +131,7 @@ public class SpecificationWriter {
 			dependencies.add(url.getPath());
 		}
 		data.put("classPath", dependencies);
-		Yaml yaml = new Yaml();
+		Yaml yaml = new Yaml(representer);
 		FileWriter writer = null;
 		try {
 			writer = new FileWriter(new File(targetDirectory, dependenciesFileName));

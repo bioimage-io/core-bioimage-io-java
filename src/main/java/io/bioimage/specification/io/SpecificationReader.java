@@ -75,12 +75,15 @@ public class SpecificationReader {
     public static boolean read(InputStream stream, DefaultModelSpecification specification) throws IOException {
         Yaml yaml = new Yaml();
         Map<String, Object> obj = yaml.load(stream);
-//		System.out.println(obj);
         if (obj == null) return false;
         return read(obj, specification);
     }
 
     private static boolean read(Map<String, Object> obj, DefaultModelSpecification specification) throws IOException {
+        if (SpecificationReaderWriterV4.canRead(obj)) {
+            SpecificationReaderWriterV4.read(specification, obj);
+            return true;
+        }
         if (SpecificationReaderWriterV3.canRead(obj)) {
             SpecificationReaderWriterV3.read(specification, obj);
             return true;

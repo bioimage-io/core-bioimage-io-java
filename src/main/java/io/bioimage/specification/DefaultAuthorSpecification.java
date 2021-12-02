@@ -33,6 +33,8 @@ public class DefaultAuthorSpecification implements AuthorSpecification{
     private String name;
     private String affiliation;
     private String orcId;
+    private String email;
+    private String githubUser;
 
 
     public DefaultAuthorSpecification() {
@@ -60,6 +62,12 @@ public class DefaultAuthorSpecification implements AuthorSpecification{
     }
 
     @Override
+    public void setEmail(String email) { this.email = email; }
+
+    @Override
+    public void setGithubUser(String githubUser) { this.githubUser = githubUser; }
+
+    @Override
     public String getName() {
         return name;
     }
@@ -73,4 +81,10 @@ public class DefaultAuthorSpecification implements AuthorSpecification{
     public String getOrcId() {
         return orcId;
     }
+
+    @Override
+    public String getEmail() { return email; }
+
+    @Override
+    public String getGithubUser() { return githubUser; }
 }
