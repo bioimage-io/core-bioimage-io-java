@@ -26,68 +26,20 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package io.bioimage.specification;
+package io.bioimage.specification.weights;
 
-import java.util.List;
-import java.util.Map;
+import io.bioimage.specification.DefaultWeightsSpecification;
 
-public class DefaultWeightsSpecification implements WeightsSpecification {
+public class OnnxWeightsSpecification extends DefaultWeightsSpecification {
 
-    private String source;
-    private String sha256;
-    private String parent;
-    private List<AuthorSpecification> authors;
-    private Map<String, String> attachments;
+	private String opsetVersion;
 
+	public String getOpsetVersion() {
+		return opsetVersion;
+	}
 
-    @Override
-    public String getSource() {
-        return source;
-    }
-
-    @Override
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    @Override
-    public String getSha256() {
-        return sha256;
-    }
-
-    @Override
-    public void setSha256(String sha256) {
-        this.sha256 = sha256;
-    }
-
-    @Override
-    public String getParent() {
-        return parent;
-    }
-
-    @Override
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
-
-    @Override
-    public List<AuthorSpecification> getAuthors() {
-        return authors;
-    }
-
-    @Override
-    public void setAuthors(List<AuthorSpecification> authors) {
-        this.authors = authors;
-    }
-
-    @Override
-    public Map<String, String> getAttachments() {
-        return attachments;
-    }
-
-    @Override
-    public void setAttachments(Map<String, String> attachments) {
-        this.attachments = attachments;
-    }
+	public void setOpsetVersion(String opsetVersion) {
+		this.opsetVersion = opsetVersion;
+	}
 
 }
