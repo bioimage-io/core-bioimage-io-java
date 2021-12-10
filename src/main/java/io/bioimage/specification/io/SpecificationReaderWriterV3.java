@@ -30,7 +30,9 @@ package io.bioimage.specification.io;
 
 import io.bioimage.specification.*;
 import io.bioimage.specification.transformation.*;
+import io.bioimage.specification.weights.OnnxWeightsSpecification;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
+import io.bioimage.specification.weights.TorchscriptWeightsSpecification;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,6 +67,7 @@ class SpecificationReaderWriterV3 {
     private final static String idWeightsSource = "source";
     private final static String idWeightsHash = "sha256";
     private final static String idWeightsTag = "tag";
+    private final static String idWeightsOnnxOpsetVersion = "opset_version";
     private final static String idPackagedBy = "packaged_by";
     private final static String idDependencies = "dependencies";
     private final static String idType = "type";
@@ -111,7 +114,13 @@ class SpecificationReaderWriterV3 {
     private final static String idTransformationZeroMean = "zero_mean_unit_variance";
     private final static String idTransformationZeroMeanMean = "mean";
     private final static String idTransformationZeroMeanStd = "std";
+
     private final static String idWeightsTensorFlowSavedModelBundle = "tensorflow_saved_model_bundle";
+    private final static String idWeightsTorchscript = "pytorch_script";
+    private final static String idWeightsPytorchStateDict = "pytorch_state_dict";
+    private final static String idWeightsKerasHDF5 = "keras_hdf5";
+    private final static String idWeightsTensorFlowJS = "tensorflow_js";
+    private final static String idWeightsOnnx = "onnx";
 
     private final static String idTransformationScaleMinMax = "scale_min_max";
     private final static String idTransformationScaleMinMaxReferenceInput = "reference_input";
@@ -244,14 +253,34 @@ class SpecificationReaderWriterV3 {
     }
 
     private static void readWeightsEntry(DefaultModelSpecification specification, String name, Map<String, Object> data) {
+    	WeightsSpecification weightsSpec = null;
         if (name.equals(idWeightsTensorFlowSavedModelBundle)) {
-            TensorFlowSavedModelBundleSpecification weightsSpec = new TensorFlowSavedModelBundleSpecification();
+            weightsSpec = new TensorFlowSavedModelBundleSpecification();
             if (data != null) {
-                weightsSpec.setTag((String) data.get(idWeightsTag));
-                weightsSpec.setSha256((String) data.get(idWeightsHash));
-                weightsSpec.setSource((String) data.get(idWeightsSource));
+                ((TensorFlowSavedModelBundleSpecification)weightsSpec).setTag((String) data.get(idWeightsTag));
             }
-            specification.addWeights(TensorFlowSavedModelBundleSpecification.id, weightsSpec);
+        } else if (name.equals(idWeightsOnnx)) {
+        	weightsSpec = new OnnxWeightsSpecification();
+        	if (data != null) {
+        		((OnnxWeightsSpecification)weightsSpec).setOpsetVersion((String) data.get(idWeightsOnnxOpsetVersion));
+        	}
+        } else if (name.equals(idWeightsTorchscript)) {
+        	weightsSpec = new TorchscriptWeightsSpecification();
+        } else if (Arrays.asList(
+        		idWeightsTensorFlowSavedModelBundle,
+        		idWeightsTensorFlowJS,
+        		idWeightsPytorchStateDict,
+        		idWeightsTorchscript,
+        		idWeightsKerasHDF5
+        		).contains(name)) {
+        	weightsSpec = new DefaultWeightsSpecification();
+        }
+        if (weightsSpec != null) {
+	        if (data != null) {
+	            weightsSpec.setSha256((String) data.get(idWeightsHash));
+	            weightsSpec.setSource((String) data.get(idWeightsSource));
+	        }
+	        specification.addWeights(name, weightsSpec);
         }
     }
 
