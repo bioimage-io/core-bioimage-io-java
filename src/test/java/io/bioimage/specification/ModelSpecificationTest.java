@@ -32,9 +32,9 @@ import io.bioimage.specification.io.SpecificationReader;
 import io.bioimage.specification.io.SpecificationWriter;
 import io.bioimage.specification.transformation.BinarizeTransformation;
 import io.bioimage.specification.transformation.ClipTransformation;
-import io.bioimage.specification.transformation.ImageTransformation;
+import io.bioimage.specification.transformation.ModeBasedTransformation;
 import io.bioimage.specification.transformation.ScaleLinearTransformation;
-import io.bioimage.specification.transformation.ScaleMinMaxTransformation;
+import io.bioimage.specification.transformation.ScaleRangeTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
 import org.apache.commons.io.FileUtils;
@@ -94,7 +94,7 @@ public class ModelSpecificationTest {
 	private final static String weightsSha256 = "1234567";
 	private final static String weightsSource = "./weights.zip";
 	private final static String timestamp = new Timestamp(System.currentTimeMillis()).toString();
-	private final static ImageTransformation.Mode mode = ImageTransformation.Mode.FIXED;
+	private final static ModeBasedTransformation.Mode mode = ModeBasedTransformation.Mode.FIXED;
 	private final static Number threshold = 0.5;
 	private final static Number min = 3;
 	private final static Number max = 4;
@@ -183,7 +183,7 @@ public class ModelSpecificationTest {
 		BinarizeTransformation binarize = getBinarizeTransformation();
 		ClipTransformation clip = getClipTransformation();
 		ZeroMeanUnitVarianceTransformation zeroMean = getZeroMeanUnitVarianceTransformation();
-		ScaleMinMaxTransformation scaleMinMax = getScaleMinMaxTransformation();
+		ScaleRangeTransformation scaleMinMax = getScaleMinMaxTransformation();
 		// input node
 		InputNodeSpecification inputNode = new DefaultInputNodeSpecification();
 		inputNode.setShapeMin(shapeMin);
@@ -211,8 +211,8 @@ public class ModelSpecificationTest {
 		specification.addWeights(TensorFlowSavedModelBundleSpecification.id, weights);
 	}
 
-	private ScaleMinMaxTransformation getScaleMinMaxTransformation() {
-		ScaleMinMaxTransformation res = new ScaleMinMaxTransformation();
+	private ScaleRangeTransformation getScaleMinMaxTransformation() {
+		ScaleRangeTransformation res = new ScaleRangeTransformation();
 		res.setMinPercentile(minPercentile);
 		res.setMaxPercentile(maxPercentile);
 		res.setReferenceInput(inputName);
@@ -224,7 +224,6 @@ public class ModelSpecificationTest {
 		ScaleLinearTransformation res = new ScaleLinearTransformation();
 		res.setGain(std);
 		res.setOffset(mean);
-		res.setMode(mode);
 		return res;
 	}
 
@@ -239,7 +238,6 @@ public class ModelSpecificationTest {
 	private BinarizeTransformation getBinarizeTransformation() {
 		BinarizeTransformation res = new BinarizeTransformation();
 		res.setThreshold(threshold);
-		res.setMode(mode);
 		return res;
 	}
 
@@ -247,7 +245,6 @@ public class ModelSpecificationTest {
 		ClipTransformation res = new ClipTransformation();
 		res.setMin(min);
 		res.setMax(max);
-		res.setMode(mode);
 		return res;
 	}
 
@@ -290,7 +287,6 @@ public class ModelSpecificationTest {
 		ClipTransformation clipIn = (ClipTransformation) _input.getPreprocessing().get(0);
 		assertEquals(min, clipIn.getMin());
 		assertEquals(max, clipIn.getMax());
-		assertEquals(mode, clipIn.getMode());
 		assertEquals(ZeroMeanUnitVarianceTransformation.name, _input.getPreprocessing().get(1).getName());
 		ZeroMeanUnitVarianceTransformation zeroMeanIn = (ZeroMeanUnitVarianceTransformation) _input.getPreprocessing().get(1);
 		assertEquals(mean, zeroMeanIn.getMean());
@@ -310,14 +306,12 @@ public class ModelSpecificationTest {
 		assertEquals(BinarizeTransformation.name, _output.getPostprocessing().get(0).getName());
 		BinarizeTransformation binarize = (BinarizeTransformation) _output.getPostprocessing().get(0);
 		assertEquals(threshold, binarize.getThreshold());
-		assertEquals(mode, binarize.getMode());
 		assertEquals(ClipTransformation.name, _output.getPostprocessing().get(1).getName());
 		ClipTransformation clip = (ClipTransformation) _output.getPostprocessing().get(1);
 		assertEquals(min, clip.getMin());
 		assertEquals(max, clip.getMax());
-		assertEquals(mode, clip.getMode());
-		assertEquals(ScaleMinMaxTransformation.name, _output.getPostprocessing().get(2).getName());
-		ScaleMinMaxTransformation scaleMinMax = (ScaleMinMaxTransformation) _output.getPostprocessing().get(2);
+		assertEquals(ScaleRangeTransformation.name, _output.getPostprocessing().get(2).getName());
+		ScaleRangeTransformation scaleMinMax = (ScaleRangeTransformation) _output.getPostprocessing().get(2);
 		assertEquals(minPercentile, scaleMinMax.getMinPercentile());
 		assertEquals(maxPercentile, scaleMinMax.getMaxPercentile());
 		assertEquals(inputName, scaleMinMax.getReferenceInput());
@@ -326,15 +320,12 @@ public class ModelSpecificationTest {
 		ScaleLinearTransformation scaleLinear = (ScaleLinearTransformation) _output.getPostprocessing().get(3);
 		assertEquals(std, scaleLinear.getGain());
 		assertEquals(mean, scaleLinear.getOffset());
-		assertEquals(mode, scaleLinear.getMode());
-
 		assertNotNull(specification.getWeights());
 		assertEquals(1, specification.getWeights().size());
 		WeightsSpecification weights = specification.getWeights().get(TensorFlowSavedModelBundleSpecification.id);
 		assertTrue(weights instanceof TensorFlowSavedModelBundleSpecification);
 		assertEquals(weightsSha256, weights.getSha256());
 		assertEquals(weightsSource, weights.getSource());
-		assertEquals("serve", ((TensorFlowSavedModelBundleSpecification)weights).getTag());
 	}
 
 }

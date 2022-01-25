@@ -28,28 +28,10 @@
  */
 package io.bioimage.specification.transformation;
 
-public class ScaleMinMaxTransformation extends DefaultImageTransformation {
+public class ScaleMeanVarianceTransformation extends DefaultModeBasedTransformation{
 
-	public static final String name = "scale_min_max";
+	public static final String name = "scale_mean_variance";
 	private String referenceInput;
-	private Number minPercentile;
-	private Number maxPercentile;
-
-	public Number getMinPercentile() {
-		return minPercentile;
-	}
-
-	public void setMinPercentile(Number minPercentile) {
-		this.minPercentile = minPercentile;
-	}
-
-	public Number getMaxPercentile() {
-		return maxPercentile;
-	}
-
-	public void setMaxPercentile(Number maxPercentile) {
-		this.maxPercentile = maxPercentile;
-	}
 
 	public String getReferenceInput() {
 		return referenceInput;
@@ -63,4 +45,6 @@ public class ScaleMinMaxTransformation extends DefaultImageTransformation {
 	public String getName() {
 		return name;
 	}
+
+
 }

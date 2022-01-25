@@ -29,7 +29,7 @@
 package io.bioimage.specification.io;
 
 import io.bioimage.specification.*;
-import io.bioimage.specification.transformation.ImageTransformation;
+import io.bioimage.specification.transformation.ModeBasedTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
 import org.apache.commons.io.FileUtils;
@@ -40,7 +40,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.*;
@@ -114,7 +113,7 @@ public class SpecificationReaderWriterV3Test {
         ZeroMeanUnitVarianceTransformation preIn = (ZeroMeanUnitVarianceTransformation) _input.getPreprocessing().get(0);
         assertEquals(41498.87, preIn.getMean());
         assertEquals(15007.021, preIn.getStd());
-        assertEquals(ImageTransformation.Mode.FIXED, preIn.getMode());
+        assertEquals(ModeBasedTransformation.Mode.FIXED, preIn.getMode());
 
         // output
         assertEquals(1, specification.getOutputs().size());

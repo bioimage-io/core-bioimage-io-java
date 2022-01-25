@@ -31,7 +31,7 @@ package io.bioimage.specification.weights;
 import io.bioimage.specification.DefaultWeightsSpecification;
 
 public class OnnxWeightsSpecification extends DefaultWeightsSpecification {
-
+	public static final String id = "onnx";
 	private String opsetVersion;
 
 	public String getOpsetVersion() {

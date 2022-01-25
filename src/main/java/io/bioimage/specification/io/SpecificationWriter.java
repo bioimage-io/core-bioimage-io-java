@@ -34,8 +34,7 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.introspector.Property;
 import org.yaml.snakeyaml.introspector.PropertyUtils;
-import org.yaml.snakeyaml.nodes.NodeTuple;
-import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.nodes.*;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.File;
@@ -50,10 +49,7 @@ import java.net.URLClassLoader;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -67,13 +63,27 @@ public class SpecificationWriter {
 	static Representer representer = new Representer() {
 		@Override
 		protected NodeTuple representJavaBeanProperty(Object javaBean, Property property, Object propertyValue, Tag customTag) {
-			// if value of property is null, ignore it.
-			if (propertyValue == null) {
-				return null;
+			NodeTuple tuple = super.representJavaBeanProperty(javaBean, property, propertyValue,
+					customTag);
+			Node valueNode = tuple.getValueNode();
+			if (Tag.NULL.equals(valueNode.getTag())) {
+				return null;// skip 'null' values
 			}
-			else {
-				return super.representJavaBeanProperty(javaBean, property, propertyValue, customTag);
+			if (valueNode instanceof CollectionNode) {
+				if (Tag.SEQ.equals(valueNode.getTag())) {
+					SequenceNode seq = (SequenceNode) valueNode;
+					if (seq.getValue().isEmpty()) {
+						return null;// skip empty lists
+					}
+				}
+				if (Tag.MAP.equals(valueNode.getTag())) {
+					MappingNode seq = (MappingNode) valueNode;
+					if (seq.getValue().isEmpty()) {
+						return null;// skip empty maps
+					}
+				}
 			}
+			return tuple;
 		}
 	};
 
@@ -84,15 +94,37 @@ public class SpecificationWriter {
 	public static void write(ModelSpecification specification, File targetDirectory) throws IOException {
 		writeDependenciesFile(targetDirectory);
 		Map<String, Object> data = write(specification);
-		Yaml yaml = new Yaml(representer);
+		data.values().removeIf(SpecificationWriter::removeNulls);
+
+		DumperOptions options = new DumperOptions();
+		options.setIndent(2);
+		Yaml yaml = new Yaml(representer, options);
 		try (FileWriter writer = new FileWriter(new File(targetDirectory, modelFileName))) {
 			yaml.dump(data, writer);
 		}
 	}
 
+	private static boolean removeNulls(final Object o) {
+		if (Objects.isNull(o)) {
+			return true;
+		} else if (o instanceof LinkedHashMap) {
+			((LinkedHashMap) o).values().removeIf(SpecificationWriter::removeNulls);
+		} else if (o instanceof List) {
+			((List) o).forEach(elem->{
+				if (elem instanceof LinkedHashMap) {
+					((LinkedHashMap) elem).values().removeIf(SpecificationWriter::removeNulls);
+				}
+			});
+
+		}
+		return false;
+	}
+
 	public static void write(ModelSpecification specification, Path modelSpecificationPath) throws IOException {
 		Map<String, Object> data = write(specification);
-		Yaml yaml = new Yaml(representer);
+		DumperOptions options = new DumperOptions();
+		options.setIndent(2);
+		Yaml yaml = new Yaml(representer, options);
 		try {
 			Files.delete(modelSpecificationPath);
 		} catch(IOException ignored) {}

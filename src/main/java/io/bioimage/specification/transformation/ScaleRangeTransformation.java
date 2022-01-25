@@ -28,17 +28,50 @@
  */
 package io.bioimage.specification.transformation;
 
-public abstract class DefaultImageTransformation implements ImageTransformation {
+public class ScaleRangeTransformation extends DefaultModeBasedTransformation implements AxesBasedTransformation{
 
-	private Mode mode;
+	public static final String name = "scale_range";
+	private String referenceInput;
+	private Number minPercentile;
+	private Number maxPercentile;
+
+	private String axes;
 
 	@Override
-	public void setMode(Mode mode) {
-		this.mode = mode;
+	public String getAxes() {
+		return axes;
+	}
+	@Override
+	public void setAxes(String axes) {
+		this.axes = axes;
+	}
+
+	public Number getMinPercentile() {
+		return minPercentile;
+	}
+
+	public void setMinPercentile(Number minPercentile) {
+		this.minPercentile = minPercentile;
+	}
+
+	public Number getMaxPercentile() {
+		return maxPercentile;
+	}
+
+	public void setMaxPercentile(Number maxPercentile) {
+		this.maxPercentile = maxPercentile;
+	}
+
+	public String getReferenceInput() {
+		return referenceInput;
+	}
+
+	public void setReferenceInput(String referenceInput) {
+		this.referenceInput = referenceInput;
 	}
 
 	@Override
-	public Mode getMode() {
-		return mode;
+	public String getName() {
+		return name;
 	}
 }

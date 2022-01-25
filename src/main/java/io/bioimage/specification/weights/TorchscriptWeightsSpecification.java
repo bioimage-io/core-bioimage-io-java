@@ -30,4 +30,7 @@ package io.bioimage.specification.weights;
 
 import io.bioimage.specification.DefaultWeightsSpecification;
 
-public class TorchscriptWeightsSpecification extends DefaultWeightsSpecification {}
+public class TorchscriptWeightsSpecification extends DefaultWeightsSpecification {
+
+    public static final String id = "pytorch_script";
+}

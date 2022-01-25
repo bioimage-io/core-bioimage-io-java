@@ -28,10 +28,12 @@
  */
 package io.bioimage.specification.transformation;
 
-public class ZeroMeanUnitVarianceTransformation extends DefaultImageTransformation {
+public class ZeroMeanUnitVarianceTransformation extends DefaultModeBasedTransformation implements AxesBasedTransformation{
 	public static final String name = "zero_mean_unit_variance";
 	private Number mean;
 	private Number std;
+	private String axes;
+	private Number eps = 0.000001f;
 
 	public Number getMean() {
 		return mean;
@@ -47,6 +49,24 @@ public class ZeroMeanUnitVarianceTransformation extends DefaultImageTransformati
 
 	public void setStd(Number std) {
 		this.std = std;
+	}
+
+	@Override
+	public String getAxes() {
+		return axes;
+	}
+
+	@Override
+	public void setAxes(String axes) {
+		this.axes = axes;
+	}
+
+	public Number getEps() {
+		return eps;
+	}
+
+	public void setEps(Number eps) {
+		this.eps = eps;
 	}
 
 	@Override

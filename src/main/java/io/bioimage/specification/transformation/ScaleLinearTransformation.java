@@ -28,11 +28,22 @@
  */
 package io.bioimage.specification.transformation;
 
-public class ScaleLinearTransformation extends DefaultImageTransformation {
+public class ScaleLinearTransformation implements AxesBasedTransformation {
 
 	public static final String name = "scale_linear";
 	private Number offset;
 	private Number gain;
+	private String axes;
+
+	@Override
+	public String getAxes() {
+		return axes;
+	}
+
+	@Override
+	public void setAxes(String axes) {
+		this.axes = axes;
+	}
 
 	public Number getOffset() {
 		return offset;

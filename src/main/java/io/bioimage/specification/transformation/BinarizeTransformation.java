@@ -28,7 +28,9 @@
  */
 package io.bioimage.specification.transformation;
 
-public class BinarizeTransformation extends DefaultImageTransformation {
+import io.bioimage.specification.TransformationSpecification;
+
+public class BinarizeTransformation implements TransformationSpecification {
 
 	public static final String name = "binarize";
 	private Number threshold;

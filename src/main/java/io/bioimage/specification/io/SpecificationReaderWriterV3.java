@@ -122,12 +122,12 @@ class SpecificationReaderWriterV3 {
     private final static String idWeightsTensorFlowJS = "tensorflow_js";
     private final static String idWeightsOnnx = "onnx";
 
-    private final static String idTransformationScaleMinMax = "scale_min_max";
+    private final static String idTransformationScaleMinMax = "scale_range";
     private final static String idTransformationScaleMinMaxReferenceInput = "reference_input";
     private final static String idTransformationScaleMinMaxMinPercentile = "min_percentile";
     private final static String idTransformationScaleMinMaxMaxPercentile = "max_percentile";
 
-    private final static String idTransformationPercentile = "percentile";
+    private final static String idTransformationPercentile = "scale_mean_variance";
     private final static String idTransformationPercentileMinPercentile = "min_percentile";
     private final static String idTransformationPercentileMaxPercentile = "max_percentile";
 
@@ -191,7 +191,6 @@ class SpecificationReaderWriterV3 {
         specification.setTags((List<String>) obj.get(idTags));
         specification.setLicense((String) obj.get(idLicense));
         specification.setFormatVersion((String) obj.get(idFormatVersion));
-        specification.setExecutionModel((String) obj.get(idExecutionModel));
         specification.setSource((String) parseSource(obj));
         specification.setHash((String) obj.get(idHash));
         specification.setGitRepo((String) obj.get(idGitRepo));
@@ -200,7 +199,6 @@ class SpecificationReaderWriterV3 {
         specification.setSampleInputs((List<String>) obj.get(idSampleInputs));
         specification.setSampleOutputs((List<String>) obj.get(idSampleOutputs));
         specification.setCovers((List<String>) obj.get(idCovers));
-        specification.setDependencies((String) obj.get(idDependencies));
         specification.setParent(parseParent(obj));
     }
 
@@ -256,9 +254,6 @@ class SpecificationReaderWriterV3 {
     	WeightsSpecification weightsSpec = null;
         if (name.equals(idWeightsTensorFlowSavedModelBundle)) {
             weightsSpec = new TensorFlowSavedModelBundleSpecification();
-            if (data != null) {
-                ((TensorFlowSavedModelBundleSpecification)weightsSpec).setTag((String) data.get(idWeightsTag));
-            }
         } else if (name.equals(idWeightsOnnx)) {
         	weightsSpec = new OnnxWeightsSpecification();
         	if (data != null) {
@@ -310,12 +305,10 @@ class SpecificationReaderWriterV3 {
         switch ((String) transformation) {
             case idTransformationBinarize:
                 BinarizeTransformation binarize = new BinarizeTransformation();
-                binarize.setMode(toMode(kwargs.get(idTransformationMode)));
                 binarize.setThreshold(toNumber(kwargs.get(idTransformationBinarizeThreshold)));
                 return binarize;
             case idTransformationScaleLinear:
                 ScaleLinearTransformation scaleLinear = new ScaleLinearTransformation();
-                scaleLinear.setMode(toMode(kwargs.get(idTransformationMode)));
                 scaleLinear.setGain(toNumber(kwargs.get(idTransformationScaleLinearGain)));
                 scaleLinear.setOffset(toNumber(kwargs.get(idTransformationScaleLinearOffset)));
                 return scaleLinear;
@@ -326,21 +319,18 @@ class SpecificationReaderWriterV3 {
                 zeroMean.setStd(toNumber(kwargs.get(idTransformationZeroMeanStd)));
                 return zeroMean;
             case idTransformationScaleMinMax:
-                ScaleMinMaxTransformation scaleMinMax = new ScaleMinMaxTransformation();
+                ScaleRangeTransformation scaleMinMax = new ScaleRangeTransformation();
                 scaleMinMax.setMode(toMode(kwargs.get(idTransformationMode)));
                 scaleMinMax.setReferenceInput((String) kwargs.get(idTransformationScaleMinMaxReferenceInput));
                 scaleMinMax.setMinPercentile(toNumber(kwargs.get(idTransformationScaleMinMaxMinPercentile)));
                 scaleMinMax.setMaxPercentile(toNumber(kwargs.get(idTransformationScaleMinMaxMaxPercentile)));
                 return scaleMinMax;
             case idTransformationPercentile:
-                PercentileTransformation percentile = new PercentileTransformation();
+                ScaleMeanVarianceTransformation percentile = new ScaleMeanVarianceTransformation();
                 percentile.setMode(toMode(kwargs.get(idTransformationMode)));
-                percentile.setMinPercentile(toNumber(kwargs.get(idTransformationPercentileMinPercentile)));
-                percentile.setMaxPercentile(toNumber(kwargs.get(idTransformationPercentileMaxPercentile)));
                 return percentile;
             case idTransformationClip:
                 ClipTransformation clip = new ClipTransformation();
-                clip.setMode(toMode(kwargs.get(idTransformationMode)));
                 clip.setMin(toNumber(kwargs.get(idTransformationClipMin)));
                 clip.setMax(toNumber(kwargs.get(idTransformationClipMax)));
                 return clip;
@@ -348,17 +338,17 @@ class SpecificationReaderWriterV3 {
         throw new IOException("Could not process transformation " + transformation);
     }
 
-    private static ImageTransformation.Mode toMode(Object obj) {
+    private static ModeBasedTransformation.Mode toMode(Object obj) {
         if (obj == null) return null;
         String mode = (String) obj;
         if (mode.equals(idTransformationModeFixed)) {
-            return ImageTransformation.Mode.FIXED;
+            return ModeBasedTransformation.Mode.FIXED;
         }
         if (mode.equals(idTransformationModePerDataset)) {
-            return ImageTransformation.Mode.PER_DATASET;
+            return ModeBasedTransformation.Mode.PER_DATASET;
         }
         if (mode.equals(idTransformationModePerSample)) {
-            return ImageTransformation.Mode.PER_SAMPLE;
+            return ModeBasedTransformation.Mode.PER_SAMPLE;
         }
         return null;
     }
@@ -427,9 +417,6 @@ class SpecificationReaderWriterV3 {
                 Map<String, Object> weightData = new HashMap<>();
                 weightData.put(idWeightsSource, weightEntry.getValue().getSource());
                 weightData.put(idWeightsHash, weightEntry.getValue().getSha256());
-                if (weightEntry.getValue() instanceof TensorFlowSavedModelBundleSpecification) {
-                    weightData.put(idWeightsTag, ((TensorFlowSavedModelBundleSpecification) weightEntry.getValue()).getTag());
-                }
                 weights.put(weightEntry.getKey(), weightData);
             }
         }
@@ -470,14 +457,12 @@ class SpecificationReaderWriterV3 {
         data.put(idTags, specification.getTags());
         data.put(idLicense, specification.getLicense());
         data.put(idSource, specification.getSource());
-        data.put(idExecutionModel, specification.getExecutionModel());
         data.put(idGitRepo, specification.getGitRepo());
         data.put(idAttachments, specification.getAttachments());
         data.put(idTestInputs, specification.getTestInputs());
         data.put(idTestOutputs, specification.getTestOutputs());
         data.put(idSampleInputs, specification.getSampleInputs());
         data.put(idSampleOutputs, specification.getSampleOutputs());
-        data.put(idDependencies, specification.getDependencies());
         data.put(idCovers, specification.getCovers());
         data.put(idHash, specification.getHash());
         data.put(idParent, buildParent(specification));
@@ -582,7 +567,6 @@ class SpecificationReaderWriterV3 {
         if (transformation instanceof ScaleLinearTransformation) {
             res.put(idTransformationName, idTransformationScaleLinear);
             ScaleLinearTransformation scaleLinear = (ScaleLinearTransformation) transformation;
-            kwargs.put(idTransformationMode, writeMode(scaleLinear.getMode()));
             kwargs.put(idTransformationScaleLinearGain, Collections.singletonList(scaleLinear.getGain()));
             kwargs.put(idTransformationScaleLinearOffset, Collections.singletonList(scaleLinear.getOffset()));
         } else if (transformation instanceof ZeroMeanUnitVarianceTransformation) {
@@ -594,25 +578,21 @@ class SpecificationReaderWriterV3 {
         } else if (transformation instanceof BinarizeTransformation) {
             res.put(idTransformationName, idTransformationBinarize);
             BinarizeTransformation binarize = (BinarizeTransformation) transformation;
-            kwargs.put(idTransformationMode, writeMode(binarize.getMode()));
             kwargs.put(idTransformationBinarizeThreshold, Collections.singletonList(binarize.getThreshold()));
-        } else if (transformation instanceof ScaleMinMaxTransformation) {
+        } else if (transformation instanceof ScaleMeanVarianceTransformation) {
             res.put(idTransformationName, idTransformationScaleMinMax);
-            ScaleMinMaxTransformation scaleMinMax = (ScaleMinMaxTransformation) transformation;
+            ScaleMeanVarianceTransformation scaleMinMax = (ScaleMeanVarianceTransformation) transformation;
             kwargs.put(idTransformationMode, writeMode(scaleMinMax.getMode()));
-            kwargs.put(idTransformationScaleMinMaxMinPercentile, scaleMinMax.getMinPercentile());
-            kwargs.put(idTransformationScaleMinMaxMaxPercentile, scaleMinMax.getMaxPercentile());
             kwargs.put(idTransformationScaleMinMaxReferenceInput, scaleMinMax.getReferenceInput());
-        } else if (transformation instanceof PercentileTransformation) {
+        } else if (transformation instanceof ScaleRangeTransformation) {
             res.put(idTransformationName, idTransformationPercentile);
-            PercentileTransformation percentile = (PercentileTransformation) transformation;
+            ScaleRangeTransformation percentile = (ScaleRangeTransformation) transformation;
             kwargs.put(idTransformationMode, writeMode(percentile.getMode()));
             kwargs.put(idTransformationPercentileMinPercentile, percentile.getMinPercentile());
             kwargs.put(idTransformationPercentileMaxPercentile, percentile.getMaxPercentile());
         } else if (transformation instanceof ClipTransformation) {
             res.put(idTransformationName, idTransformationClip);
             ClipTransformation clip = (ClipTransformation) transformation;
-            kwargs.put(idTransformationMode, writeMode(clip.getMode()));
             kwargs.put(idTransformationClipMin, clip.getMin());
             kwargs.put(idTransformationClipMax, clip.getMax());
         }
@@ -620,11 +600,11 @@ class SpecificationReaderWriterV3 {
         return res;
     }
 
-    private static String writeMode(ImageTransformation.Mode mode) {
+    private static String writeMode(ModeBasedTransformation.Mode mode) {
         if (mode == null) return null;
-        if (mode.equals(ImageTransformation.Mode.FIXED)) return idTransformationModeFixed;
-        if (mode.equals(ImageTransformation.Mode.PER_DATASET)) return idTransformationModePerDataset;
-        if (mode.equals(ImageTransformation.Mode.PER_SAMPLE)) return idTransformationModePerSample;
+        if (mode.equals(ModeBasedTransformation.Mode.FIXED)) return idTransformationModeFixed;
+        if (mode.equals(ModeBasedTransformation.Mode.PER_DATASET)) return idTransformationModePerDataset;
+        if (mode.equals(ModeBasedTransformation.Mode.PER_SAMPLE)) return idTransformationModePerSample;
         return null;
     }
 

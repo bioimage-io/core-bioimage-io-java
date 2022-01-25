@@ -35,8 +35,7 @@ import io.bioimage.specification.InputNodeSpecification;
 import io.bioimage.specification.ModelSpecification;
 import io.bioimage.specification.OutputNodeSpecification;
 import io.bioimage.specification.WeightsSpecification;
-import io.bioimage.specification.transformation.ImageTransformation;
-import io.bioimage.specification.transformation.ScaleLinearTransformation;
+import io.bioimage.specification.transformation.ModeBasedTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
 import org.apache.commons.io.FileUtils;
@@ -99,7 +98,6 @@ public class SpecificationReaderWriterV2Test {
 		assertEquals("model documentation", specification.getDocumentation());
 		assertEquals("bsd", specification.getLicense());
 		assertEquals("denoiseg", specification.getSource());
-		assertEquals("denoiseg", specification.getExecutionModel());
 		assertArrayEquals(new String[]{"denoising", "unet2d"}, specification.getTags().toArray());
 		assertEquals(1, specification.getCitations().size());
 		CitationSpecification citation = new DefaultCitationSpecification();
@@ -128,7 +126,7 @@ public class SpecificationReaderWriterV2Test {
 		ZeroMeanUnitVarianceTransformation preIn = (ZeroMeanUnitVarianceTransformation) _input.getPreprocessing().get(0);
 		assertEquals(23.041513, preIn.getMean());
 		assertEquals(38.51743, preIn.getStd());
-		assertEquals(ImageTransformation.Mode.FIXED, preIn.getMode());
+		assertEquals(ModeBasedTransformation.Mode.FIXED, preIn.getMode());
 
 		// output
 		assertEquals(1, specification.getOutputs().size());
@@ -145,7 +143,6 @@ public class SpecificationReaderWriterV2Test {
 		assertTrue(weights instanceof TensorFlowSavedModelBundleSpecification);
 		assertNull(weights.getSha256());
 		assertNull(weights.getSource());
-		assertEquals("serve", ((TensorFlowSavedModelBundleSpecification)weights).getTag());
 
 		assertNotNull(specification.getConfig());
 		Map<String, Object> fijiConfig = (Map<String, Object>) specification.getConfig().get("fiji");

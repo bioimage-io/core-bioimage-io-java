@@ -28,7 +28,9 @@
  */
 package io.bioimage.specification.transformation;
 
-public class ClipTransformation extends DefaultImageTransformation {
+import io.bioimage.specification.TransformationSpecification;
+
+public class ClipTransformation implements TransformationSpecification {
 
 	public static final String name = "clip";
 	private Number min;

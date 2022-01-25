@@ -35,7 +35,7 @@ import io.bioimage.specification.InputNodeSpecification;
 import io.bioimage.specification.ModelSpecification;
 import io.bioimage.specification.OutputNodeSpecification;
 import io.bioimage.specification.WeightsSpecification;
-import io.bioimage.specification.transformation.ImageTransformation;
+import io.bioimage.specification.transformation.ModeBasedTransformation;
 import io.bioimage.specification.transformation.ScaleLinearTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
@@ -119,7 +119,7 @@ public class SpecificationReaderWriterV1Test {
 		ZeroMeanUnitVarianceTransformation preIn = (ZeroMeanUnitVarianceTransformation) _input.getPreprocessing().get(0);
 		assertEquals(100, preIn.getMean());
 		assertEquals(200, preIn.getStd());
-		assertEquals(ImageTransformation.Mode.FIXED, preIn.getMode());
+		assertEquals(ModeBasedTransformation.Mode.FIXED, preIn.getMode());
 
 		// output
 		assertEquals(1, specification.getOutputs().size());
@@ -136,7 +136,6 @@ public class SpecificationReaderWriterV1Test {
 		ScaleLinearTransformation postOut = (ScaleLinearTransformation) _output.getPostprocessing().get(0);
 		assertEquals(200, postOut.getGain());
 		assertEquals(100, postOut.getOffset());
-		assertEquals(ImageTransformation.Mode.FIXED, postOut.getMode());
 
 		assertNotNull(specification.getWeights());
 		assertEquals(1, specification.getWeights().size());
@@ -144,7 +143,6 @@ public class SpecificationReaderWriterV1Test {
 		assertTrue(weights instanceof TensorFlowSavedModelBundleSpecification);
 		assertNull(weights.getSha256());
 		assertNull(weights.getSource());
-		assertEquals("serve", ((TensorFlowSavedModelBundleSpecification)weights).getTag());
 	}
 
 }

@@ -79,8 +79,6 @@ public interface ModelSpecification {
 
 	String getTimestamp();
 
-	String getExecutionModel();
-
 	@Deprecated
 	Map<String, Object> getTrainingKwargs();
 
@@ -100,8 +98,6 @@ public interface ModelSpecification {
 	void setTags(List<String> tags);
 
 	void setDescription(String description);
-
-    String getDependencies();
 
 	List<String> getCovers();
 

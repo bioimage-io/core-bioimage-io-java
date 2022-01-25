@@ -28,32 +28,32 @@
  */
 package io.bioimage.specification.transformation;
 
-import io.bioimage.specification.transformation.DefaultImageTransformation;
+import io.bioimage.specification.TransformationSpecification;
 
-public class PercentileTransformation extends DefaultImageTransformation {
+public interface ModeBasedTransformation extends TransformationSpecification {
 
-	public static final String name = "percentile";
-	private Number minPercentile;
-	private Number maxPercentile;
-
-	public Number getMinPercentile() {
-		return minPercentile;
+	enum Mode {
+		FIXED("fixed"), PER_DATASET("per_dataset"), PER_SAMPLE("per_sample");
+		private final String name;
+		Mode(String name) {
+			this.name = name;
+		}
+		public String getName() {
+			return name;
+		}
 	}
 
-	public void setMinPercentile(Number minPercentile) {
-		this.minPercentile = minPercentile;
+	default void setMode(String mode) {
+		for (Mode value : Mode.values()) {
+			if(value.getName().equals(mode)) {
+				setMode(value);
+				return;
+			}
+		}
 	}
 
-	public Number getMaxPercentile() {
-		return maxPercentile;
-	}
+	void setMode(Mode mode);
 
-	public void setMaxPercentile(Number maxPercentile) {
-		this.maxPercentile = maxPercentile;
-	}
+	Mode getMode();
 
-	@Override
-	public String getName() {
-		return name;
-	}
 }

@@ -36,7 +36,7 @@ import java.util.*;
  */
 public class DefaultModelSpecification implements ModelSpecification {
 
-    final static String modelZooSpecificationVersion = "0.4.0";
+    final static String modelZooSpecificationVersion = "0.4.2";
     private String formatVersion = modelZooSpecificationVersion;
     private List<String> sampleInputs = new ArrayList<>();
 
@@ -60,12 +60,10 @@ public class DefaultModelSpecification implements ModelSpecification {
     private String timestamp;
     private Map<String, Object> trainingKwargs;
     private Map<String, Object> config;
-    private String executionModel;
     private String hash;
-    private ParentSpecification parent;
+    private ParentSpecification parent = new DefaultParentSpecification();
     private List<String> covers = new ArrayList<>();
-    private String dependencies;
-    private List<AuthorSpecification> packaged_by;
+    private List<AuthorSpecification> packaged_by = new ArrayList<>();
     private String version;
     private String type;
     private String downloadUrl;
@@ -154,14 +152,6 @@ public class DefaultModelSpecification implements ModelSpecification {
 
     public void setCovers(List<String> covers) {
         this.covers = covers;
-    }
-
-    public String getDependencies() {
-        return dependencies;
-    }
-
-    public void setDependencies(String dependencies) {
-        this.dependencies = dependencies;
     }
 
     public List<AuthorSpecification> getPackagedBy() {
@@ -380,15 +370,6 @@ public class DefaultModelSpecification implements ModelSpecification {
         this.timestamp = timestamp;
     }
 
-    @Override
-    public String getExecutionModel() {
-        return executionModel;
-    }
-
-    public void setExecutionModel(String executionModel) {
-        this.executionModel = executionModel;
-    }
-
     public void read(ModelSpecification spec) {
         setName(spec.getName());
         setDocumentation(spec.getDocumentation());
@@ -409,7 +390,6 @@ public class DefaultModelSpecification implements ModelSpecification {
         setAttachments(spec.getAttachments());
         setWeights(spec.getWeights());
         setParent(spec.getParent());
-        setDependencies(spec.getDependencies());
         setConfig(spec.getConfig());
     }
 

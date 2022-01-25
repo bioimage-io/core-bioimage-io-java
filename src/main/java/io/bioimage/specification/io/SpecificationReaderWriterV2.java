@@ -29,7 +29,7 @@
 package io.bioimage.specification.io;
 
 import io.bioimage.specification.*;
-import io.bioimage.specification.transformation.ImageTransformation;
+import io.bioimage.specification.transformation.ModeBasedTransformation;
 import io.bioimage.specification.transformation.ScaleLinearTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
@@ -130,7 +130,6 @@ class SpecificationReaderWriterV2 {
         specification.setLicense((String) obj.get(idLicense));
         specification.setFormatVersion((String) obj.get(idFormatVersion));
         specification.setSource((String) obj.get(idSource));
-        specification.setExecutionModel((String) getExecutionModel(obj));
         specification.setSampleInputs(Collections.singletonList((String) obj.get(idTestInput)));
         specification.setSampleOutputs(Collections.singletonList((String) obj.get(idTestOutput)));
     }
@@ -181,11 +180,10 @@ class SpecificationReaderWriterV2 {
         ZeroMeanUnitVarianceTransformation pre = new ZeroMeanUnitVarianceTransformation();
         pre.setStd((Number) stdList.get(0));
         pre.setMean((Number) meanList.get(0));
-        pre.setMode(ImageTransformation.Mode.FIXED);
+        pre.setMode(ModeBasedTransformation.Mode.FIXED);
         ScaleLinearTransformation post = new ScaleLinearTransformation();
         post.setOffset(pre.getMean());
         post.setGain(pre.getStd());
-        post.setMode(ImageTransformation.Mode.FIXED);
         specification.getInputs().get(0).setPreprocessing(Collections.singletonList(pre));
         if (!specification.getSource().equals("denoiseg")) {
             specification.getOutputs().get(0).setPostprocessing(Collections.singletonList(post));

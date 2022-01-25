@@ -6,13 +6,13 @@ cite:
     doi: https://arxiv.org/abs/2005.02987
 authors:
   - name: authors
-documentation: model documentation
+documentation: README.md
 tags: [ denoising, unet2d ]
 license: BSD-3-Clause
 test_inputs: [ test_input.tif ]
 test_outputs: [ test_output.tif ]
 covers: [ thumbnail.png ]
-format_version: 0.4.0
+format_version: 0.4.2
 timestamp: 2021-06-03T15:34:19.685956+02:00
 inputs:
   - name: input
@@ -32,7 +32,7 @@ outputs:
     data_range: [ -inf, inf ]
     halo: [ 0, 32, 32, 0 ]
     shape:
-      reference_input: input
+      reference_tensor: input
       scale: [ 1, 1, 1, 1 ]
       offset: [ 0, 0, 0, 0 ]
     postprocessing:
@@ -45,14 +45,16 @@ weights:
     tensorflow_version: 1.13.1
 version: "1.0"
 type: model
-github_url: https://github.com/juglab/n2v
-download_url: https://github.com/juglab/n2v
+git_repo: "https://github.com/juglab/n2v"
+download_url: "https://github.com/juglab/n2v"
 icon: sampleOutput.png
 links: [https://github.com/juglab/n2v, https://github.com/bioimage-io/fiji-bioimage-io/releases/download/v0.3.1/n2v-sem-demo_savedmodelbundle.zip]
 maintainers:
   - name: Tom Burke
     github_user: tomburke-rse
-packaged_by: [Tom Burke]
+packaged_by:
+  - name: Tom Burke
+    github_user: tomburke-rse
 config:
   fiji: { batchDimLength: 180, batchSize: 64, trainDimensions: 2, neighborhoodRadius: 5, numEpochs: 100,
           numStepsPerEpoch: 300, patchDimLength: 60, stepsFinished: 30000 }

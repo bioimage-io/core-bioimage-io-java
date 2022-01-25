@@ -29,7 +29,7 @@
 package io.bioimage.specification.io;
 
 import io.bioimage.specification.*;
-import io.bioimage.specification.transformation.ImageTransformation;
+import io.bioimage.specification.transformation.ModeBasedTransformation;
 import io.bioimage.specification.transformation.ScaleLinearTransformation;
 import io.bioimage.specification.transformation.ZeroMeanUnitVarianceTransformation;
 import io.bioimage.specification.weights.TensorFlowSavedModelBundleSpecification;
@@ -158,11 +158,10 @@ class SpecificationReaderWriterV1 {
                         ZeroMeanUnitVarianceTransformation pre = new ZeroMeanUnitVarianceTransformation();
                         pre.setStd(std);
                         pre.setMean(mean);
-                        pre.setMode(ImageTransformation.Mode.FIXED);
+                        pre.setMode(ModeBasedTransformation.Mode.FIXED);
                         ScaleLinearTransformation post = new ScaleLinearTransformation();
                         post.setGain(std);
                         post.setOffset(mean);
-                        post.setMode(ImageTransformation.Mode.FIXED);
                         specification.getInputs().get(0).setPreprocessing(Collections.singletonList(pre));
                         specification.getOutputs().get(0).setPostprocessing(Collections.singletonList(post));
                     }

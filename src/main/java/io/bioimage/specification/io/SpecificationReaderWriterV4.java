@@ -91,7 +91,7 @@ class SpecificationReaderWriterV4 {
     private final static String idNodeShapeMin = "min";
     private final static String idNodeShapeStep = "step";
     private final static String idNodePreprocessing = "preprocessing";
-    private final static String idNodeShapeReferenceInput = "reference_input";
+    private final static String idNodeShapeReferenceInput = "reference_tensor";
     private final static String idNodeShapeScale = "scale";
     private final static String idNodeShapeOffset = "offset";
     private final static String idNodePostprocessing = "postprocessing";
@@ -132,12 +132,12 @@ class SpecificationReaderWriterV4 {
     private final static String idWeightsTensorFlowJS = "tensorflow_js";
     private final static String idWeightsOnnx = "onnx";
 
-    private final static String idTransformationScaleMinMax = "scale_min_max";
-    private final static String idTransformationScaleMinMaxReferenceInput = "reference_input";
+    private final static String idTransformationScaleMinMax = "scale_range";
+    private final static String idTransformationScaleMinMaxReferenceInput = "reference_tensor";
     private final static String idTransformationScaleMinMaxMinPercentile = "min_percentile";
     private final static String idTransformationScaleMinMaxMaxPercentile = "max_percentile";
 
-    private final static String idTransformationPercentile = "percentile";
+    private final static String idTransformationPercentile = "scale_mean_variance";
     private final static String idTransformationPercentileMinPercentile = "min_percentile";
     private final static String idTransformationPercentileMaxPercentile = "max_percentile";
 
@@ -206,8 +206,7 @@ class SpecificationReaderWriterV4 {
                 }
             }
         }
-        specification.setPackaged_by((List<AuthorSpecification>) obj.get(idPackagedBy));
-        List<Object> packaged_by = (List<Object>) obj.get(idMaintainers);
+        List<Object> packaged_by = (List<Object>) obj.get(idPackagedBy);
         if (packaged_by != null && List.class.isAssignableFrom(packaged_by.getClass())) {
             if(!packaged_by.isEmpty() && Map.class.isAssignableFrom(packaged_by.get(0).getClass())){
                 for(Object packager : packaged_by){
@@ -226,7 +225,6 @@ class SpecificationReaderWriterV4 {
         specification.setSampleInputs((List<String>) obj.get(idSampleInputs));
         specification.setSampleOutputs((List<String>) obj.get(idSampleOutputs));
         specification.setCovers((List<String>) obj.get(idCovers));
-        specification.setDependencies((String) obj.get(idDependencies));
         specification.setParent(parseParent(obj));
         specification.setDownloadUrl((String) obj.get(idDownloadUrl));
         specification.setBadges((List<BadgeSpecification>) obj.get(idBadges));
@@ -297,9 +295,6 @@ class SpecificationReaderWriterV4 {
     	WeightsSpecification weightsSpec = null;
         if (name.equals(idWeightsTensorFlowSavedModelBundle)) {
             weightsSpec = new TensorFlowSavedModelBundleSpecification();
-            if (data != null) {
-                ((TensorFlowSavedModelBundleSpecification)weightsSpec).setTag((String) data.get(idWeightsTag));
-            }
         } else if (name.equals(idWeightsOnnx)) {
         	weightsSpec = new OnnxWeightsSpecification();
         	if (data != null) {
@@ -351,12 +346,10 @@ class SpecificationReaderWriterV4 {
         switch ((String) transformation) {
             case idTransformationBinarize:
                 BinarizeTransformation binarize = new BinarizeTransformation();
-                binarize.setMode(toMode(kwargs.get(idTransformationMode)));
                 binarize.setThreshold(toNumber(kwargs.get(idTransformationBinarizeThreshold)));
                 return binarize;
             case idTransformationScaleLinear:
                 ScaleLinearTransformation scaleLinear = new ScaleLinearTransformation();
-                scaleLinear.setMode(toMode(kwargs.get(idTransformationMode)));
                 scaleLinear.setGain(toNumber(kwargs.get(idTransformationScaleLinearGain)));
                 scaleLinear.setOffset(toNumber(kwargs.get(idTransformationScaleLinearOffset)));
                 return scaleLinear;
@@ -367,21 +360,20 @@ class SpecificationReaderWriterV4 {
                 zeroMean.setStd(toNumber(kwargs.get(idTransformationZeroMeanStd)));
                 return zeroMean;
             case idTransformationScaleMinMax:
-                ScaleMinMaxTransformation scaleMinMax = new ScaleMinMaxTransformation();
+                ScaleRangeTransformation scaleMinMax = new ScaleRangeTransformation();
                 scaleMinMax.setMode(toMode(kwargs.get(idTransformationMode)));
                 scaleMinMax.setReferenceInput((String) kwargs.get(idTransformationScaleMinMaxReferenceInput));
                 scaleMinMax.setMinPercentile(toNumber(kwargs.get(idTransformationScaleMinMaxMinPercentile)));
                 scaleMinMax.setMaxPercentile(toNumber(kwargs.get(idTransformationScaleMinMaxMaxPercentile)));
                 return scaleMinMax;
             case idTransformationPercentile:
-                PercentileTransformation percentile = new PercentileTransformation();
+                ScaleRangeTransformation percentile = new ScaleRangeTransformation();
                 percentile.setMode(toMode(kwargs.get(idTransformationMode)));
                 percentile.setMinPercentile(toNumber(kwargs.get(idTransformationPercentileMinPercentile)));
                 percentile.setMaxPercentile(toNumber(kwargs.get(idTransformationPercentileMaxPercentile)));
                 return percentile;
             case idTransformationClip:
                 ClipTransformation clip = new ClipTransformation();
-                clip.setMode(toMode(kwargs.get(idTransformationMode)));
                 clip.setMin(toNumber(kwargs.get(idTransformationClipMin)));
                 clip.setMax(toNumber(kwargs.get(idTransformationClipMax)));
                 return clip;
@@ -389,17 +381,17 @@ class SpecificationReaderWriterV4 {
         throw new IOException("Could not process transformation " + transformation);
     }
 
-    private static ImageTransformation.Mode toMode(Object obj) {
+    private static ModeBasedTransformation.Mode toMode(Object obj) {
         if (obj == null) return null;
         String mode = (String) obj;
         if (mode.equals(idTransformationModeFixed)) {
-            return ImageTransformation.Mode.FIXED;
+            return ModeBasedTransformation.Mode.FIXED;
         }
         if (mode.equals(idTransformationModePerDataset)) {
-            return ImageTransformation.Mode.PER_DATASET;
+            return ModeBasedTransformation.Mode.PER_DATASET;
         }
         if (mode.equals(idTransformationModePerSample)) {
-            return ImageTransformation.Mode.PER_SAMPLE;
+            return ModeBasedTransformation.Mode.PER_SAMPLE;
         }
         return null;
     }
@@ -465,12 +457,9 @@ class SpecificationReaderWriterV4 {
         Map<String, Object> weights = new LinkedHashMap<>();
         if (specification.getWeights() != null) {
             for (Map.Entry<String, WeightsSpecification> weightEntry : specification.getWeights().entrySet()) {
-                Map<String, Object> weightData = new HashMap<>();
+                Map<String, Object> weightData = new LinkedHashMap<>();
                 weightData.put(idWeightsSource, weightEntry.getValue().getSource());
                 weightData.put(idWeightsHash, weightEntry.getValue().getSha256());
-                if (weightEntry.getValue() instanceof TensorFlowSavedModelBundleSpecification) {
-                    weightData.put(idWeightsTag, ((TensorFlowSavedModelBundleSpecification) weightEntry.getValue()).getTag());
-                }
                 weights.put(weightEntry.getKey(), weightData);
             }
         }
@@ -507,7 +496,7 @@ class SpecificationReaderWriterV4 {
         data.put(idName, specification.getName());
         data.put(idTimestamp, specification.getTimestamp());
         data.put(idDescription, specification.getDescription());
-        data.put(idAuthors, buildAuthorList(specification));
+        data.put(idAuthors, buildAuthorList(specification.getAuthors()));
         data.put(idCite, buildCitationList(specification));
         data.put(idDocumentation, specification.getDocumentation());
         data.put(idTags, specification.getTags());
@@ -519,7 +508,6 @@ class SpecificationReaderWriterV4 {
         data.put(idTestOutputs, specification.getTestOutputs());
         data.put(idSampleInputs, specification.getSampleInputs());
         data.put(idSampleOutputs, specification.getSampleOutputs());
-        data.put(idDependencies, specification.getDependencies());
         data.put(idCovers, specification.getCovers());
         data.put(idParent, buildParent(specification));
         data.put(idVersion, specification.getVersion());
@@ -530,7 +518,7 @@ class SpecificationReaderWriterV4 {
         data.put(idIcon, specification.getIcon());
         data.put(idLinks, specification.getLinks());
         data.put(idDownloadUrl, specification.getDownloadUrl());
-        data.put(idPackagedBy, specification.getPackagedBy());
+        data.put(idPackagedBy, buildAuthorList(specification.getPackagedBy()));
     }
 
     private static List<Map<String, Object>> buildBadges(ModelSpecification specification) {
@@ -539,7 +527,7 @@ class SpecificationReaderWriterV4 {
             return null;
         }
         for(BadgeSpecification badgeSpec : specification.getBadges()){
-            Map<String, Object> badge = new HashMap<>();
+            Map<String, Object> badge = new LinkedHashMap<>();
             badge.put(idBadgeLabel, badgeSpec.getLabel());
             badge.put(idBadgeIcon, badgeSpec.getIcon());
             badge.put(idBadgeUrl, badgeSpec.getUrl());
@@ -548,13 +536,13 @@ class SpecificationReaderWriterV4 {
         return badges;
     }
 
-    private static List<Map<String, Object>> buildAuthorList(ModelSpecification specification) {
+    private static List<Map<String, Object>> buildAuthorList(List<AuthorSpecification> authorList) {
         List<Map<String, Object>> authors = new ArrayList<>();
-        if (specification.getAuthors() == null) {
+        if (authorList == null || authorList.isEmpty()) {
             return null;
         }
-        for(AuthorSpecification authorSpec : specification.getAuthors()){
-            Map<String, Object> author = new HashMap<>();
+        for(AuthorSpecification authorSpec : authorList){
+            Map<String, Object> author = new LinkedHashMap<>();
             author.put(idAuthorName, authorSpec.getName());
             author.put(idAuthorOrcid, authorSpec.getOrcId());
             author.put(idAuthorAffiliation, authorSpec.getAffiliation());
@@ -571,7 +559,7 @@ class SpecificationReaderWriterV4 {
             return null;
         }
         for(AuthorSpecification authorSpec : specification.getMaintainers()){
-            Map<String, Object> author = new HashMap<>();
+            Map<String, Object> author = new LinkedHashMap<>();
             author.put(idAuthorName, authorSpec.getName());
             author.put(idAuthorOrcid, authorSpec.getOrcId());
             author.put(idAuthorAffiliation, authorSpec.getAffiliation());
@@ -584,7 +572,7 @@ class SpecificationReaderWriterV4 {
 
 
     private static Map<String, Object> buildParent(ModelSpecification specification) {
-        Map<String, Object> parent = new HashMap<>();
+        Map<String, Object> parent = new LinkedHashMap<>();
         if (specification.getParent() == null) {
             return null;
         }
@@ -635,7 +623,7 @@ class SpecificationReaderWriterV4 {
 
     private static Map<String, Object> writeInputNode(InputNodeSpecification node) {
         Map<String, Object> res = writeNode(node);
-        Map<String, Object> shape = new HashMap<>();
+        Map<String, Object> shape = new LinkedHashMap<>();
         if (node.getShapeMin() != null) shape.put(idNodeShapeMin, node.getShapeMin());
         if (node.getShapeStep() != null) shape.put(idNodeShapeStep, node.getShapeStep());
         res.put(idNodeShape, shape);
@@ -647,7 +635,7 @@ class SpecificationReaderWriterV4 {
 
     private static Map<String, Object> writeOutputNode(OutputNodeSpecification node) {
         Map<String, Object> res = writeNode(node);
-        Map<String, Object> shape = new HashMap<>();
+        Map<String, Object> shape = new LinkedHashMap<>();
         shape.put(idNodeShapeReferenceInput, node.getReferenceInputName());
         shape.put(idNodeShapeScale, node.getShapeScale());
         shape.put(idNodeShapeOffset, node.getShapeOffset());
@@ -664,7 +652,6 @@ class SpecificationReaderWriterV4 {
         if (transformation instanceof ScaleLinearTransformation) {
             res.put(idTransformationName, idTransformationScaleLinear);
             ScaleLinearTransformation scaleLinear = (ScaleLinearTransformation) transformation;
-            kwargs.put(idTransformationMode, writeMode(scaleLinear.getMode()));
             kwargs.put(idTransformationScaleLinearGain, Collections.singletonList(scaleLinear.getGain()));
             kwargs.put(idTransformationScaleLinearOffset, Collections.singletonList(scaleLinear.getOffset()));
         } else if (transformation instanceof ZeroMeanUnitVarianceTransformation) {
@@ -676,25 +663,23 @@ class SpecificationReaderWriterV4 {
         } else if (transformation instanceof BinarizeTransformation) {
             res.put(idTransformationName, idTransformationBinarize);
             BinarizeTransformation binarize = (BinarizeTransformation) transformation;
-            kwargs.put(idTransformationMode, writeMode(binarize.getMode()));
             kwargs.put(idTransformationBinarizeThreshold, Collections.singletonList(binarize.getThreshold()));
-        } else if (transformation instanceof ScaleMinMaxTransformation) {
+        } else if (transformation instanceof ScaleRangeTransformation) {
             res.put(idTransformationName, idTransformationScaleMinMax);
-            ScaleMinMaxTransformation scaleMinMax = (ScaleMinMaxTransformation) transformation;
+            ScaleRangeTransformation scaleMinMax = (ScaleRangeTransformation) transformation;
             kwargs.put(idTransformationMode, writeMode(scaleMinMax.getMode()));
             kwargs.put(idTransformationScaleMinMaxMinPercentile, scaleMinMax.getMinPercentile());
             kwargs.put(idTransformationScaleMinMaxMaxPercentile, scaleMinMax.getMaxPercentile());
             kwargs.put(idTransformationScaleMinMaxReferenceInput, scaleMinMax.getReferenceInput());
-        } else if (transformation instanceof PercentileTransformation) {
+        } else if (transformation instanceof ScaleRangeTransformation) {
             res.put(idTransformationName, idTransformationPercentile);
-            PercentileTransformation percentile = (PercentileTransformation) transformation;
+            ScaleRangeTransformation percentile = (ScaleRangeTransformation) transformation;
             kwargs.put(idTransformationMode, writeMode(percentile.getMode()));
             kwargs.put(idTransformationPercentileMinPercentile, percentile.getMinPercentile());
             kwargs.put(idTransformationPercentileMaxPercentile, percentile.getMaxPercentile());
         } else if (transformation instanceof ClipTransformation) {
             res.put(idTransformationName, idTransformationClip);
             ClipTransformation clip = (ClipTransformation) transformation;
-            kwargs.put(idTransformationMode, writeMode(clip.getMode()));
             kwargs.put(idTransformationClipMin, clip.getMin());
             kwargs.put(idTransformationClipMax, clip.getMax());
         }
@@ -702,11 +687,11 @@ class SpecificationReaderWriterV4 {
         return res;
     }
 
-    private static String writeMode(ImageTransformation.Mode mode) {
+    private static String writeMode(ModeBasedTransformation.Mode mode) {
         if (mode == null) return null;
-        if (mode.equals(ImageTransformation.Mode.FIXED)) return idTransformationModeFixed;
-        if (mode.equals(ImageTransformation.Mode.PER_DATASET)) return idTransformationModePerDataset;
-        if (mode.equals(ImageTransformation.Mode.PER_SAMPLE)) return idTransformationModePerSample;
+        if (mode.equals(ModeBasedTransformation.Mode.FIXED)) return idTransformationModeFixed;
+        if (mode.equals(ModeBasedTransformation.Mode.PER_DATASET)) return idTransformationModePerDataset;
+        if (mode.equals(ModeBasedTransformation.Mode.PER_SAMPLE)) return idTransformationModePerSample;
         return null;
     }
 
